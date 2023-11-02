@@ -17,21 +17,22 @@ public class JpaMain {
         EntityTransaction tx = em.getTransaction();
         tx.begin();
         try {
-////            ArrayList<Member> members = new ArrayList<>();
-//            // 로직
-//            for(Long i = 1l; i < 30; i++){
-//                Member member = new Member(i, "newMember" + i);
-////                members.add(member);
-//                em.persist(member);
-//            }
+            ArrayList<Member> members = new ArrayList<>();
+            // 로직
+            for(Long i = 1l; i < 30; i++){
+                Member member = new Member(i, "newMember" + i);
+                members.add(member);
+                em.persist(member);
+            }
             // 비영속
-            Member member = new Member();
-            member.setId(1L);
-            member.setName("jin");
+//            Member member1 = new Member(101L, "jin1");
+//            Member member2 = new Member(102L, "jin2");
+
             // 영속
-            System.out.println("=== BEFORE ===");
-            em.persist(member);
-            System.out.println("=== AFTER ==="); 
+//            em.persist(member1); //단일 컨텍스트 저장
+//            em.persist(member2);
+
+            System.out.println("=========");
 
             Member findMember = em.find(Member.class, 1L);
             System.out.println("findMember = " + findMember.getName());
