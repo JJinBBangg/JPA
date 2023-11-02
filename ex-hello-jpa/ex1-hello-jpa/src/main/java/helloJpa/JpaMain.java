@@ -31,7 +31,7 @@ public class JpaMain {
             // 영속
             System.out.println("=== BEFORE ===");
             em.persist(member);
-            System.out.println("=== AFTER ===");
+            System.out.println("=== AFTER ==="); 
 
             Member findMember = em.find(Member.class, 1L);
             System.out.println("findMember = " + findMember.getName());
