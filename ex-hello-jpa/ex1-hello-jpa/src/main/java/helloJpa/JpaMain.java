@@ -17,13 +17,25 @@ public class JpaMain {
         EntityTransaction tx = em.getTransaction();
         tx.begin();
         try {
-//            ArrayList<Member> members = new ArrayList<>();
+            for(Long i = 1l; i <= 60; i++){
+                Member member = new Member();
+                member.setUsername("A"+i);
+                em.persist(member);
+            }
+            System.out.println("========================");
+            Member member1 = em.find(Member.class, 1);
+            Member member2 = em.find(Member.class, 2);
+            Member member3 = em.find(Member.class, 3);
+            Member member4 = em.find(Member.class, 4);
+            Member member5 = em.find(Member.class, 5);
+            System.out.println("member1 = " + member1.getId());
+            System.out.println("member2 = " + member2.getId());
+            System.out.println("member3 = " + member3.getId());
+            System.out.println("member4 = " + member4.getId());
+            System.out.println("member5 = " + member5.getId());
+            System.out.println("========================");
+
             // 로직
-//            for(Long i = 1l; i < 30; i++){
-//                Member member = new Member(i, "newMember" + i);
-//                members.add(member);
-//                em.persist(member);
-//            }
             // 비영속
 //            Member member1 = new Member(101L, "jin1");
 //            Member member2 = new Member(102L, "jin2");
@@ -47,6 +59,7 @@ public class JpaMain {
 //            member.setName("jjinbbang"); // 자동으로 저장됨
 //            em.persist(member); // 쿼리문 작성
             // 커밋
+            System.out.println("commit");
             tx.commit();
 
         } catch (Exception e) {

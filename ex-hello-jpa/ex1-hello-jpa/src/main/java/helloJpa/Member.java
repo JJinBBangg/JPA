@@ -5,12 +5,18 @@ import jakarta.persistence.*;
 import java.util.Date;
 
 @Entity
+@SequenceGenerator(
+        name = "MEMBER_SEQ_GENERATOR", // spring 에서 매칭시킬 시퀀스 네임
+        sequenceName = "MEMBER_SEQ", // 매핑할 DB상의 시퀀스 네임
+        initialValue = 1, allocationSize = 50) // 50개 단위로 시퀀스값을 가져온다 예)현제5352 = 5353~5402까지
 public class Member {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)// db 방언에 맞게 알아서 지정
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "MEMBER_SEQ_GENERATOR")
     private Long id;
 
-    @Column(name = "name", updatable = false/*jpa update조작 불가 */, insertable = false/*jpa insert조작 불가 */)
+    @Column(name = "name"/*, updatable = false*//*jpa update조작 불가 *//*, insertable = false*//*jpa insert조작 불가 */)
     private String username;
 
     private Integer age;
