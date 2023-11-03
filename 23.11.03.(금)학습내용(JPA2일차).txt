@@ -1,13 +1,26 @@
 1.학습내용
  - JAVA의 객체와 DB의 TABLE 맵핑
     ** 데이터베이스 파일 생성 방법
+ - Primary Key 생성 전략
+    1. GenerationType.AUTO
+    2. GenerationType.IDENTITY
+    3. GenerationType.SEQUENCE
+    4. GenerationType.TABLE
+    5. GenerationType.UUID
+ - 연관관계 매핑 기초
 
+ 1) 단방향 연관관계
+
+ 2) 양방향 연관관계와 연관관계의 주인 1- 기본
+
+ 3) 양방향 연관관계와 연관관계의 주인 2 - 주의점, 정리
+
+ 4) 연관관계 매핑 예제 실습
+
+<tip>
 jdbc:h2:~/jpashop (최초 한번)
 
 ~/jpashop.mv.db 파일 생성 확인
 
 이후부터는 jdbc:h2:tcp://localhost/~/jpashop 이렇게 접속
 
-스프링 입문 강의 참고했습니다.
-
-답글 달기

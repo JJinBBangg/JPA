@@ -16,38 +16,28 @@ import java.util.Date;
 // TABLE 도 같은 전략으로 가져오기때문에 문제없음
 // hibernate5 버전 이후부터는 default 값이 TABLE
 public class Member {
-    @Id
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "MEMBER_SEQ_GENERATOR")
+    @Id @GeneratedValue
+    @Column(name = "MEMBER_NAME")
     private Long id;
 
-    @Column(name = "name"/*, updatable = false*//*jpa update조작 불가 *//*, insertable = false*//*jpa insert조작 불가 */)
+    @Column(name = "USERNAME")
     private String username;
 
-    private Integer age;
+    @ManyToOne
+    @JoinColumn(name ="TEAM_ID")
+    private Team team;
+//    @Column(name = "TEAM_ID")
+//    private Long teamId;
 
-    @Enumerated(EnumType.STRING)
-    private RoleType roleType;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createdDate;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date lastModifiedDate;
-    @Lob
-    private String description;
-    public Member(){
-
+    public Member() {
     }
-    public Member(Long id, String username, Integer age, RoleType roleType, Date createdDate, Date lastModifiedDate, String description) {
-        this.id = id;
-        this.username = username;
-        this.age = age;
-        this.roleType = roleType;
-        this.createdDate = createdDate;
-        this.lastModifiedDate = lastModifiedDate;
-        this.description = description;
+
+    public Team getTeam() {
+        return team;
+    }
+
+    public void setTeam(Team team) {
+        this.team = team;
     }
 
     public Long getId() {
@@ -64,46 +54,6 @@ public class Member {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public Integer getAge() {
-        return age;
-    }
-
-    public void setAge(Integer age) {
-        this.age = age;
-    }
-
-    public RoleType getRoleType() {
-        return roleType;
-    }
-
-    public void setRoleType(RoleType roleType) {
-        this.roleType = roleType;
-    }
-
-    public Date getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(Date createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    public Date getLastModifiedDate() {
-        return lastModifiedDate;
-    }
-
-    public void setLastModifiedDate(Date lastModifiedDate) {
-        this.lastModifiedDate = lastModifiedDate;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 }
 

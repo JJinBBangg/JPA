@@ -17,23 +17,23 @@ public class JpaMain {
         EntityTransaction tx = em.getTransaction();
         tx.begin();
         try {
-            for(Long i = 1l; i <= 60; i++){
-                Member member = new Member();
-                member.setUsername("A"+i);
-                em.persist(member);
-            }
-            System.out.println("========================");
-            Member member1 = em.find(Member.class, 1);
-            Member member2 = em.find(Member.class, 2);
-            Member member3 = em.find(Member.class, 3);
-            Member member4 = em.find(Member.class, 4);
-            Member member5 = em.find(Member.class, 5);
-            System.out.println("member1 = " + member1.getId());
-            System.out.println("member2 = " + member2.getId());
-            System.out.println("member3 = " + member3.getId());
-            System.out.println("member4 = " + member4.getId());
-            System.out.println("member5 = " + member5.getId());
-            System.out.println("========================");
+//            for(Long i = 1l; i <= 60; i++){
+//                Member member = new Member();
+//                member.setUsername("A"+i);
+//                em.persist(member);
+//            }
+//            System.out.println("========================");
+//            Member member1 = em.find(Member.class, 1);
+//            Member member2 = em.find(Member.class, 2);
+//            Member member3 = em.find(Member.class, 3);
+//            Member member4 = em.find(Member.class, 4);
+//            Member member5 = em.find(Member.class, 5);
+//            System.out.println("member1 = " + member1.getId());
+//            System.out.println("member2 = " + member2.getId());
+//            System.out.println("member3 = " + member3.getId());
+//            System.out.println("member4 = " + member4.getId());
+//            System.out.println("member5 = " + member5.getId());
+//            System.out.println("========================");
 
             // 로직
             // 비영속
@@ -58,6 +58,18 @@ public class JpaMain {
 //            }
 //            member.setName("jjinbbang"); // 자동으로 저장됨
 //            em.persist(member); // 쿼리문 작성
+            Team team = new Team();
+            team.setName("TeamA");
+            em.persist(team);
+
+            Member member = new Member();
+            member.setUsername("memberA");
+            member.setTeam(team);
+            em.persist(member);
+            Member findedMember = em.find(Member.class, 1L);
+            Team findedTeam = findedMember.getTeam();
+            System.out.println("findedTeam.getName() = " + findedTeam.getName());
+
             // 커밋
             System.out.println("commit");
             tx.commit();
