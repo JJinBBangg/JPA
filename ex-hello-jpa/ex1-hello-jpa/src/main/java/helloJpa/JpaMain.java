@@ -70,6 +70,10 @@ public class JpaMain {
             Team findedTeam = findedMember.getTeam();
             System.out.println("findedTeam.getName() = " + findedTeam.getName());
 
+//            Team findTeam = em.find(Team.class, 100L); // 팀100 번이 있다고 가정
+//            member.setTeam(findTeam); 
+// 팀을 객체로 바로 바인딩 commit 에서 FK값이 변경 반영됨
+
             // 커밋
             System.out.println("commit");
             tx.commit();

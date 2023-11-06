@@ -1,4 +1,5 @@
 1.학습내용
+  - 
  - JAVA의 객체와 DB의 TABLE 맵핑
     ** 데이터베이스 파일 생성 방법
  - Primary Key 생성 전략
@@ -17,7 +18,41 @@
 
  4) 연관관계 매핑 예제 실습
 
+ - 상속관계 맵핑
+슈퍼타입 서브타입 논리 모델 -> 물리모델 구현 방법
+객체는 상속을 지원하므로 모델링과 구현이 똑같지만, DB는 상속을 지원하지 않으므로 논리 모델을 물리 모델로 구현할 방법이 필요하다.
+
+DB의 슈퍼타입 서브타입 논리 모델을 실제 물리 모델로 구현하는 방법은 세가지 있다.
+
+중요한건, DB입장에서 세가지로 구현하지만 JPA에서는 어떤 방식을 선택하던 매핑이 가능하다.
+
+JPA가 이 세가지 방식과 매핑하려면
+
+@Inheritance(strategy=InheritanceType.XXX)의 stategy를 설정해주면 된다.
+
+default 전략은 SINGLE_TABLE(단일 테이블 전략)이다.
+
+InheritanceType 종류
+
+JOINED
+
+SINGLE_TABLE
+
+TABLE_PER_CLASS
+
+@DiscriminatorColumn(name="DTYPE")
+
+부모 클래스에 선언한다. 하위 클래스를 구분하는 용도의 컬럼이다. 관례는 default = DTYPE
+
+@DiscriminatorValue("XXX")
+
+하위 클래스에 선언한다. 엔티티를 저장할 때 슈퍼타입의 구분 컬럼에 저장할 값을 지정한다.
+
+어노테이션을 선언하지 않을 경우 기본값으로 클래스 이름이 들어간다.
+
 <tip>
+https://docs.jboss.org/hibernate/orm/6.3/introduction/html_single/Hibernate_Introduction.html  (hibernate 공식 레퍼런스)
+https://docs.spring.io/spring-data/jpa/docs/current/reference/html/ (Spring Data JPA 공식 레퍼런스)
 jdbc:h2:~/jpashop (최초 한번)
 
 ~/jpashop.mv.db 파일 생성 확인
