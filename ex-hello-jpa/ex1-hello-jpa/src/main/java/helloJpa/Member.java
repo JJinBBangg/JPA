@@ -26,6 +26,8 @@ public class Member {
     @ManyToOne
     @JoinColumn(name ="TEAM_ID")
     private Team team;
+    // 실제 FK가 있는 테이블에서 기준이 되는 컬럼을 만들고 onetomany를 사용하는 테이블에서는
+    // mappedBy 를 활용하여 검색만 되게하고 값을 입력하는경우는 기준이되는 테이블로 와서 입력
 //    @Column(name = "TEAM_ID")
 //    private Long teamId;
 
@@ -36,8 +38,10 @@ public class Member {
         return team;
     }
 
-    public void setTeam(Team team) {
+    public void changeTeam(Team team) {
         this.team = team;
+        // 기존에 team객체 안에 this객체와 같은 ref 값이 존재할 때 저장하지않는 등 로직이 필요하면 추가
+        team.getMembers().add(this);
     }
 
     public Long getId() {

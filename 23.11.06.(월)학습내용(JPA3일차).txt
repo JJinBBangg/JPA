@@ -1,0 +1,63 @@
+1. 학습내용
+  - 양방향 연관관계 
+public class Member {
+    @Id @GeneratedValue
+    @Column(name = "MEMBER_NAME")
+    private Long id;
+
+    @Column(name = "USERNAME")
+    private String username;
+
+    @ManyToOne
+    @JoinColumn(name ="TEAM_ID")
+    private Team team;
+}
+
+public class Team {
+    @Id @GeneratedValue
+    @Column(name = "TEAM_ID")
+    private Long id;
+    private String name;
+
+    @OneToMany(mappedBy = "team")
+    private List<Member> members = new ArrayList<>();
+}
+위처럼 member가 기준 테이블이 되는경우 
+
+Team team = new Team();
+team.setName("TeamA");
+em.persist(team);
+
+Member member = new Member();
+member.setTeam(team);
+member.setUsername("memberA");
+em.persist(member);
+
+team.getMembers().add(member);
+
+member.setTeam 하지 않고 실행 시 member 테이블의 TEAM_ID 값 null(flush하더라도 null임)
+읽기전용이라 member.setTeam()을 한 값만 들어가지 여기서는 입력되지않음
+
+flush를 하지 않는 상태에서 로직 상 값을 이용하려면 1차 캐시에 저장된 값을 이용해야하는데
+이런경우 team.getMembers().add(member), member.setTeam(team) 양쪽에서 입력한 후에 사용해야함
+이유는 1차캐시에 올라가는 모습은 순수한 java객체로 team의 List<Member> 값이 없음
+
+flush나 commit이후에 로직이 들어가는경우 상관없지만 1차캐시에서 바로 값을 꺼내와서 로직을 구연하는경우
+양쪽에 모두 입력해줘야하므로 기본적으로 양쪽에 값을 입력하는것을 기본으로 하면됨
+
+해결책으로 연관관계 편의메소드
+Member Entity 객체  setter에     
+public void setTeam(Team team) {
+        this.team = team;
+        team.getMembers().add(this);
+}
+입력하여 team값이 세팅될때 객체값을 자동으로 입력되도록 셋팅
+
+setter인경우 다른 기능들의 간섭이 있을 수 있으므로
+public void changeTeam(Team team) {
+        this.team = team;
+	//로직(존재하는값 구분 등)
+        team.getMembers().add(this);
+} 
+으로 수정하여 setter이외의 기능으로 별도로 만들어준다
+기존에 team객체 안에 this객체와 같은 ref 값이 존재할 때 저장하지않는 등 로직이 필요하면 추가

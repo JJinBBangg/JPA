@@ -1,9 +1,6 @@
 package jpabook.jpashop.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
 public class OrderItem {
@@ -11,10 +8,16 @@ public class OrderItem {
     @GeneratedValue
     @Column(name = "ORDER_ITEM_ID")
     private Long id;
-    @Column(name = "ORDER_ID")
-    private Long orderId;
-    @Column(name = "ITEM_ID")
-    private Long itemID;
+    @ManyToOne
+    @JoinColumn(name = "ORDER_ID")
+    private Order order;
+    //    @Column(name = "ORDER_ID")
+    //    private Long orderId;
+    @ManyToOne
+    @JoinColumn(name = "ITEM_ID")
+    private Item item;
+    //    @Column(name = "ITEM_ID")
+    //    private Long itemID;
     private int orderPrice;
     private int count;
 
@@ -29,20 +32,12 @@ public class OrderItem {
         this.id = id;
     }
 
-    public Long getOrderId() {
-        return orderId;
+    public Order getOrder() {
+        return order;
     }
 
-    public void setOrderId(Long orderId) {
-        this.orderId = orderId;
-    }
-
-    public Long getItemID() {
-        return itemID;
-    }
-
-    public void setItemID(Long itemID) {
-        this.itemID = itemID;
+    public void setOrder(Order order) {
+        this.order = order;
     }
 
     public int getOrderPrice() {
@@ -51,6 +46,14 @@ public class OrderItem {
 
     public void setOrderPrice(int orderPrice) {
         this.orderPrice = orderPrice;
+    }
+
+    public Item getItem() {
+        return item;
+    }
+
+    public void setItem(Item item) {
+        this.item = item;
     }
 
     public int getCount() {

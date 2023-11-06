@@ -63,15 +63,39 @@ public class JpaMain {
             em.persist(team);
 
             Member member = new Member();
+            member.changeTeam(team);
             member.setUsername("memberA");
-            member.setTeam(team);
             em.persist(member);
-            Member findedMember = em.find(Member.class, 1L);
-            Team findedTeam = findedMember.getTeam();
-            System.out.println("findedTeam.getName() = " + findedTeam.getName());
+
+
+//            team.getMembers().add(member);
+//            member.set 하지 않고 실행 시 member 테이블의 TEAM_ID 값 null
+//            읽기전용이라 member.setTeam()을 한 값만 들어가지 여기서는 입력되지않음
+//            flush를 하지 않는 상태에서 로직 상 값을 이용하려면 1차 캐시에 저장된 값을 이용해야하는데
+//            이런경우 team.getMembers().add(member); 양쪽에서 입력한 후에 사용해야함
+//            이유는 1차캐시에 올라가는 모습은 순수한 java객체로 team의 List<Member> 값은 없다고 보면됨
+//            em.flush();
+//            em.clear();
+
+            Team findTeam = em.find(Team.class, team.getId());
+            List<Member> members = findTeam.getMembers();
+            for (Member m : members) {
+                System.out.println("m.getUsername() = " + m.getUsername());
+            }
+
+
+//            Member findedMember = em.find(Member.class, member.getId());
+//            Team findTeam = findedMember.getTeam();
+//            System.out.println("findTeam.getName() = " + findTeam.getName());
+//
+//            List<Member> members = findedMember.getTeam().getMembers();
+//            for (Member m : members) {
+//                System.out.println("m = " + m.getUsername());
+//            }
+
 
 //            Team findTeam = em.find(Team.class, 100L); // 팀100 번이 있다고 가정
-//            member.setTeam(findTeam); 
+//            member.setTeam(findTeam);
 // 팀을 객체로 바로 바인딩 commit 에서 FK값이 변경 반영됨
 
             // 커밋
