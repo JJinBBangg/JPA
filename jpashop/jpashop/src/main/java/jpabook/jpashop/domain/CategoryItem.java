@@ -2,11 +2,12 @@ package jpabook.jpashop.domain;
 
 import jakarta.persistence.*;
 
-@Entity
-public class CategoryItem {
+@Entity(name= "CATEGORY_ITEM")
+public class CategoryItem extends BaseEntity{
 
     @Id
     @GeneratedValue
+    @Column(name = "CATEGORY_ITEM_ID")
     private Long id;
 
     @ManyToOne

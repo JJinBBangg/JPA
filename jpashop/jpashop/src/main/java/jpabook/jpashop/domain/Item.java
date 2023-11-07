@@ -5,13 +5,19 @@ import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static jakarta.persistence.InheritanceType.JOINED;
+import static jakarta.persistence.InheritanceType.SINGLE_TABLE;
+
 @Entity
-public class Item {
+@Inheritance(strategy = JOINED)
+@DiscriminatorColumn
+public abstract class Item extends BaseEntity{
+
     @Id
     @GeneratedValue
     @Column(name = "ITEM_ID")
     private Long id;
-    @OneToMany(mappedBy = "items")
+    @OneToMany(mappedBy = "item")
     private List<CategoryItem> categoryItems = new ArrayList<>();
     private String name;
     private int price;
@@ -19,6 +25,15 @@ public class Item {
     public Item() {
 
     }
+
+    public List<CategoryItem> getCategoryItems() {
+        return categoryItems;
+    }
+
+    public void setCategoryItems(List<CategoryItem> categoryItems) {
+        this.categoryItems = categoryItems;
+    }
+
 
     public Long getId() {
         return id;

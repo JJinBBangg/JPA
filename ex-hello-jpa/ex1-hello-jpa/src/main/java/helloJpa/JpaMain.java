@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
+import org.hibernate.Hibernate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,14 +59,10 @@ public class JpaMain {
 //            }
 //            member.setName("jjinbbang"); // 자동으로 저장됨
 //            em.persist(member); // 쿼리문 작성
-            Team team = new Team();
-            team.setName("TeamA");
-            em.persist(team);
+//            Team team = new Team();
+//            team.setName("TeamA");
+//            em.persist(team);
 
-            Member member = new Member();
-            member.changeTeam(team);
-            member.setUsername("memberA");
-            em.persist(member);
 
 
 //            team.getMembers().add(member);
@@ -77,11 +74,11 @@ public class JpaMain {
 //            em.flush();
 //            em.clear();
 
-            Team findTeam = em.find(Team.class, team.getId());
-            List<Member> members = findTeam.getMembers();
-            for (Member m : members) {
-                System.out.println("m.getUsername() = " + m.getUsername());
-            }
+//            Team findTeam = em.find(Team.class, team.getId());
+//            List<Member> members = findTeam.getMembers();
+//            for (Member m : members) {
+//                System.out.println("m.getUsername() = " + m.getUsername());
+//            }
 
 
 //            Member findedMember = em.find(Member.class, member.getId());
@@ -98,6 +95,25 @@ public class JpaMain {
 //            member.setTeam(findTeam);
 // 팀을 객체로 바로 바인딩 commit 에서 FK값이 변경 반영됨
 
+            //프록시 실습
+            Member member = new Member();
+            member.setUsername("memberA");
+            em.persist(member);
+            em.flush();
+            em.clear();
+
+//            Member findMember = em.find(Member.class, member.getId());
+            Member refMember = em.getReference(Member.class, member.getId());
+            System.out.println("refMember.getClass() = " + refMember.getClass());
+            System.out.println("refMember.getId() = " + refMember.getId());
+            // 여기까지는 DB 조회 없이도 출력가능하여 쿼리 날리지 않음
+            System.out.println("refMember.getUsername() = " + refMember.getUsername());
+            Hibernate.initialize(refMember); // username 조회 하지 않고 사용
+            //사용할 때 쿼리를 날리게 됨
+            
+//            System.out.println("findMember.getClass() = " + findMember.getClass());//
+//            System.out.println("findMember.getUsername() = " + findMember.getUsername());//
+            
             // 커밋
             System.out.println("commit");
             tx.commit();

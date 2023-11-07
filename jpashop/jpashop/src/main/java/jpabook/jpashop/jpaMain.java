@@ -1,6 +1,7 @@
 package jpabook.jpashop;
 
 import jakarta.persistence.*;
+import jpabook.jpashop.domain.Book;
 import jpabook.jpashop.domain.Order;
 import jpabook.jpashop.domain.OrderItem;
 
@@ -15,7 +16,8 @@ public class jpaMain {
         tx.begin();
 
         try {
-            Order order = new Order();
+            Book book = new Book();
+            em.persist(book);
             tx.commit();
         } catch (Exception e) {
             tx.rollback();
