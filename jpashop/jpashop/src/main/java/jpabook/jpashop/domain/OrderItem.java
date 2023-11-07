@@ -2,18 +2,20 @@ package jpabook.jpashop.domain;
 
 import jakarta.persistence.*;
 
+import static jakarta.persistence.FetchType.LAZY;
+
 @Entity
 public class OrderItem extends BaseEntity{
     @Id
     @GeneratedValue
     @Column(name = "ORDER_ITEM_ID")
     private Long id;
-    @ManyToOne
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "ORDER_ID")
     private Order order;
     //    @Column(name = "ORDER_ID")
     //    private Long orderId;
-    @ManyToOne
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "ITEM_ID")
     private Item item;
     //    @Column(name = "ITEM_ID")

@@ -1,93 +1,95 @@
-1. 학습내용
-  - 양방향 연관관계 
-public class Member {
-    @Id @GeneratedValue
-    @Column(name = "MEMBER_NAME")
-    private Long id;
+1.학습내용
+ -JPA 프록시 
+  em.find() : 데이터 베이스를 통해 엔티티 객체를 조회
+ em.getReference() : 영속성 컨텍스트를 통해 조회를 미루는 프록시(가짜) 엔티티 객체 조회 -> 실제 데이터를 활용하는 단계에서 쿼리를 날려서 조회
 
-    @Column(name = "USERNAME")
-    private String username;
+//프록시 실습
+Member member = new Member();
+member.setUsername("memberA");
+em.persist(member);
+em.flush();
+em.clear();
 
-    @ManyToOne
-    @JoinColumn(name ="TEAM_ID")
-    private Team team;
-}
+	Member findMember = em.find(Member.class, member.getId());
+	System.out.println("findMember.getClass() = " + findMember.getClass());
+1차 캐시에 데이터 불러오고나면
+	Member refMember = em.getReference(Member.class, member.getId());
+	System.out.println("refMember.getClass() = " + refMember.getClass());
+	System.out.println("refMember.getId() = " + refMember.getId());
+여기까지는 DB 조회 없이도 출력가능하여 쿼리 날리지 않음
+	System.out.println("refMember.getUsername() = " + refMember.getUsername());
+1차 캐시에서 데이터가 있으면 proxy 의 target이 1차캐시에서 조회
+	// Hibernate.initialize(refMember); // username 조회 하지 않고 1차캐시에 영속성 컨텍스트 등록하는방법(쿼리를 날리게됨)
+사용할 때 쿼리를 날리게 됨
 
-public class Team {
-    @Id @GeneratedValue
-    @Column(name = "TEAM_ID")
-    private Long id;
-    private String name;
+위의 em.find() 와 em.reference() 순서가 바뀌더라도 1차캐시에 데이터가 있으면
+find() 에서도 쿼리를 날리지 않고 1차캐시를 사용하게됨
+특이점은 ref 먼저 조회시 class타입이 proxy로 나오고 이후에 find조회하더라도
+두클래스의 타입 모두 proxy로 조회되고 반대의 경우에는 두클레스 모두 Member 타입임
 
-    @OneToMany(mappedBy = "team")
-    private List<Member> members = new ArrayList<>();
-}
-위처럼 member가 기준 테이블이 되는경우 
 
-Team team = new Team();
-team.setName("TeamA");
+@ManyToOne(fetch = FetchType.XXX) default값 EAGER(LAZY권장)
+@OneToOne(fetch = FetchType.XXX) default값 EAGER(LAZY권장)
+@OneToMany(fetch = FetchType.XXX) default값 LAZY(수정하지않고 필요한 경우에만 EAGER로 수정하여 사용)
+   1. LAZY(지연로딩) : 해당 JOIN되는 정보를 사용하지 않으면 JOIN하지 않고 조회
+   Team team = new Team();
+team.setName("teamA");
 em.persist(team);
 
 Member member = new Member();
+member.setName("member1");
 member.setTeam(team);
-member.setUsername("memberA");
 em.persist(member);
 
-team.getMembers().add(member);
+em.flush();
+em.clear();
 
-member.setTeam 하지 않고 실행 시 member 테이블의 TEAM_ID 값 null(flush하더라도 null임)
-읽기전용이라 member.setTeam()을 한 값만 들어가지 여기서는 입력되지않음
+System.out.println("===================");
+Member findMember = em.find(Member.class, member.getId());
+System.out.println("findMember.getTeam().getClass() = " + findMember.getTeam().getClass());
+// team의 정보조회 없이 team.getClass(); 조회시 Proxy로 조회하게됨
+System.out.println("findMember.getTeam().getName() = " + findMember.getTeam().getName());
+// 위 team을 불러오게되면 team을 join해서 조회
 
-flush를 하지 않는 상태에서 로직 상 값을 이용하려면 1차 캐시에 저장된 값을 이용해야하는데
-이런경우 team.getMembers().add(member), member.setTeam(team) 양쪽에서 입력한 후에 사용해야함
-이유는 1차캐시에 올라가는 모습은 순수한 java객체로 team의 List<Member> 값이 없음
+member만 사용하게되는 로직에서는 이점이 있으나 member와 team이 자주 같이 사용된다면 쿼리가 2번 나가야하니 성능 저하될 수 있음
 
-flush나 commit이후에 로직이 들어가는경우 상관없지만 1차캐시에서 바로 값을 꺼내와서 로직을 구연하는경우
-양쪽에 모두 입력해줘야하므로 기본적으로 양쪽에 값을 입력하는것을 기본으로 하면됨
+   2. EAGER(즉시로딩)
+member 조회시 반드시 team 정보도 가져오게됨
+실무에서는 사용을 지양해야함(불필요한 정보 외에도 예상외의 sql이 날라가는경우가있음)LAZY권장
 
-해결책으로 연관관계 편의메소드
-Member Entity 객체  setter에     
-public void setTeam(Team team) {
-        this.team = team;
-        team.getMembers().add(this);
-}
-입력하여 team값이 세팅될때 객체값을 자동으로 입력되도록 셋팅
+ - 영속성 전의
+@OneToMany(mappedBy=("parent", cascade=CascadeType.XXX) 
+  1. ALL : 1:N 의 관계 객체에서 1의 객체를 저장할 때 N의 정보도 같이 em.persist()(영속성 컨텍스트로 만들어줌) - 모두포함(PERSIST, MERGE, REMOVE, REFRESH, DETACH)
+  2. DETACH : EntityManager가 detach() 메서드로 부모 엔티티를 분리(detach)할 때 연관 엔티티도 분리됩니다.
+  3. MERGE :  수정(UPDATE) 연산을 Cascade합니다. 부모 엔티티가 수정될 때 연관 엔티티도 수정됩니다.
+  4. PERSIST : 저장(INSERT) 연산을 Cascade합니다. 부모 엔티티가 저장될 때 연관 엔티티도 저장됩니다.부모 엔티티가 새로운 상태로 만들어질 때 연관 엔티티도 새로운 상태로 만들어집니다.
+  5. REFRESH : EntityManager가 refresh() 메서드로 부모 엔티티를 리프레시할 때 연관 엔티티도 리프레시됩니다.
+  6. REMOVE : 삭제(DELETE) 연산을 Cascade합니다. 부모 엔티티가 삭제될 때 연관 엔티티도 삭제됩니다.
 
-setter인경우 다른 기능들의 간섭이 있을 수 있으므로
-public void changeTeam(Team team) {
-        this.team = team;
-	//로직(존재하는값 구분 등)
-        team.getMembers().add(this);
-} 
-으로 수정하여 setter이외의 기능으로 별도로 만들어준다
-기존에 team객체 안에 this객체와 같은 ref 값이 존재할 때 저장하지않는 등 로직이 필요하면 추가
+ALL, PERSIST 정도만 실무에서 권장 
+실무에서 필요한 경우는 하나의 부모(소유자)만 사용하는 경우 CascadeType을 설정해서 사용하면 편리함
+사용 예) 게시글과 첨부파일
+사용주의 예) 첨부파일을 여러곳에서 사용하거나 다른 부모 관계를 사용하는 경우
+parent와 child의 LIFE cycle을 고려해서 사용하거나 단일 소유자인 경우 사용
 
-JPA 상속관계 맵핑
-  - 조인 전략 : 상위 클레스 타입 테이블과 하위 타입테이블을 각각 분리하고 각 테이블을 정규화 형식에 맞게 PK로 조인하는전략
-   - 장점 : 테이블 정규화 , 외래키 참조 무결성 제약조건 활용가능, 저장공간 효율화
-     - 단점  : 조회시 조인을 많이 사용함(성능저하), 조회 쿼리가 복잡함, 데이터저장 시 상위, 하위 두개의 테이블에 insert문이 발생함
- 
- - 단일 테이블전략 : 모든 컬럼을 한태이블에 넣고 DTYPE으로 구분
-   - 장점 : 조인이 필요없음, 쿼리가 단순함, 조회 성능이 높음 
-     - 단점 : 하위 엔티티 클래스가 매핑한 컬럼은  모두 null 값을 허용(무결성의 방향과는 맞지않음), 여러 테이블 정보를 모아놓은것이기 때문에 테이블 크기가 너무 커질 수도 있음
+- 고아객체
+@OneToMany(mappedBy=("parent", cascade=CascadeType.XXX, orphanRemoval = true)
+ orphanRemoval = true 설정시
+ 아래처럼 사용할 시 컬랙션(list)에서만 삭제했을 뿐인데 영속성 컨텍스트에 삭제반영됨 
+Parent findParent = em.find(Parent.class, parent.getId());
+findParent.getChildList().remove(0);
+Parent객체를 영속성 컨텍스트에서 지워도 자식객체 모두가 영속성 컨텍스트에서 삭제됨
+orphanRemoval 설정 또한 굉장히 유의해서 사용해야함(참조하는 곳이 한개일 때, 특정 엔티티가 개인적으로 소유한 관계에서만 사용)
 
- - 구현 클래스마다 구현 전략 : 공통되는 값들도 모두 각 테이블에 작성하여 구현 클래스 갯수만큼 테이블생성
-     - 장점 : 
-     - 단점 : 통계내거나 테이블 통합 쿼리 어려움(굉장히 복잡해짐), 상위클래스로 검색 시 모든 테이블로 union 쿼리를 만들어서 검색 하기때문에 느림
-@inheritance(strategy = inheritanceType.XXX) 
-JOINED : 조인전략
-SINGLE_TABLE : 단일 테이블 전략
-TABLE_PER_CLASS : 구현 클래스마다 테이블 전략
+cascade와 orphanRemoval 차이점은
+cascade 영속성 컨텍스트 상의 em.XXX() 사용해야 반영되고
+orphanRemoval 은 객체만 삭제되어도 바로 영속성컨텍스트에 반영됨
 
-@discriminatorColumn(name = "DTYPE")  DTYPE 컬럼 이름 설정
-@discriminatorValue("XXX") 하위 FK 매칭되는 테이블 별칭
 
-상속받고싶은 클래스에 작성하여 사용
-@Entity // 매핑정보와 상속받은 타입으로 조회 검색 기능도 제공
-@MappedSuperClass 
- - 상속 관계 맵핑 X
- - 엔티티X, 테이블과 매핑 X
-  - 상속 받더라도 매핑 정보만 제공
-  - 조회 검색 불가 em.find(BaseEntity.class, member)
- - 직접 생성해서 사용할 일은 없으므로 추상클래스 권장
 
+
+성능에 관여할 수 있는 요소 정리
+1. 테이블 생성 전략 - 조인, 단일테이블, 구현클레스마다구현
+2. @XXXToOne(기본값EAGER), @XXXToMany(기본값LAZY) 
+   -LAZY(지연로딩) , EAGER(즉시로딩) : LAZY사용을 권장하며 필요한 경우 JPQL의 join fetch기능, 엔티티 그래프 기능 사용
+3. 양방향 연관관계 설정(로직의 연관성을 분석하여 관계의 주인설정) - 착안사항 연관관계의 설정이 잘못되어 불필요한 쿼리가 실행되는경우 성능저하

@@ -102,14 +102,22 @@ public class JpaMain {
             em.flush();
             em.clear();
 
-//            Member findMember = em.find(Member.class, member.getId());
+            Member findMember = em.find(Member.class, member.getId());
+            System.out.println("findMember.getClass() = " + findMember.getClass());
+            // 1차 캐시에 데이터 불러오고나면
             Member refMember = em.getReference(Member.class, member.getId());
             System.out.println("refMember.getClass() = " + refMember.getClass());
             System.out.println("refMember.getId() = " + refMember.getId());
             // 여기까지는 DB 조회 없이도 출력가능하여 쿼리 날리지 않음
             System.out.println("refMember.getUsername() = " + refMember.getUsername());
+            // 1차 캐시에서 데이터가 있으면 proxy 의 target이 1차캐시에서 조회
             Hibernate.initialize(refMember); // username 조회 하지 않고 사용
             //사용할 때 쿼리를 날리게 됨
+
+            // 위의 em.find() 와 em.reference() 순서가 바뀌더라도 1차캐시에 데이터가 있으면
+            // find() 에서도 쿼리를 날리지 않고 1차캐시를 사용하게됨
+            // 특이점은 ref 먼저 조회시 class타입이 proxy로 나오고 이후에 find조회하더라도
+            // 두클래스의 타입 모두 proxy로 조회되고 반대의 경우에는 두클레스 모두 Member 타입임
             
 //            System.out.println("findMember.getClass() = " + findMember.getClass());//
 //            System.out.println("findMember.getUsername() = " + findMember.getUsername());//

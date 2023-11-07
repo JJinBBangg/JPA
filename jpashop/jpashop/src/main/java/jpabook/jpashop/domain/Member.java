@@ -18,6 +18,18 @@ public class Member extends BaseEntity {
     @OneToMany(mappedBy = "member")
     private List<Order> orders = new ArrayList<>();
 
+    @ManyToOne(fetch = FetchType.LAZY) // team을 사용할 때만 조회
+    @JoinColumn(name = "TEAM_ID")
+    private Team team;
+
+    public Team getTeam() {
+        return team;
+    }
+
+    public void setTeam(Team team) {
+        this.team = team;
+    }
+
     public List<Order> getOrders() {
         return orders;
     }
