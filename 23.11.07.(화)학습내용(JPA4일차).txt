@@ -85,6 +85,23 @@ cascade와 orphanRemoval 차이점은
 cascade 영속성 컨텍스트 상의 em.XXX() 사용해야 반영되고
 orphanRemoval 은 객체만 삭제되어도 바로 영속성컨텍스트에 반영됨
 
+ -- 값타입 
+ 최상위 타입으로는
+ 1. Entity(객체)
+   - 객체의 주소값을 통해 추적가능(내부의 값이 변경되더라도 ref의 주소값을 별도로 가지고있음)
+ 2.기본타입
+   - int, Integer, String 단순한 값으로사용하는 기본타입 객체로
+   - 식별자가 없고 값만 존재하기 때문에 추적이 불가능
+
+   1) 기본타입 : int, double, float, char ...
+    레퍼클스 : Integer, Long, Double ... 
+    String
+
+  2) 임베디드 타입(embedded type, 복합 값 타입)
+   3) 컬렉션타입(collection value type)
+
+
+
 
 
 
@@ -93,3 +110,4 @@ orphanRemoval 은 객체만 삭제되어도 바로 영속성컨텍스트에 반�
 2. @XXXToOne(기본값EAGER), @XXXToMany(기본값LAZY) 
    -LAZY(지연로딩) , EAGER(즉시로딩) : LAZY사용을 권장하며 필요한 경우 JPQL의 join fetch기능, 엔티티 그래프 기능 사용
 3. 양방향 연관관계 설정(로직의 연관성을 분석하여 관계의 주인설정) - 착안사항 연관관계의 설정이 잘못되어 불필요한 쿼리가 실행되는경우 성능저하
+
