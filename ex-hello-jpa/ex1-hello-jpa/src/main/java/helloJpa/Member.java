@@ -16,15 +16,16 @@ import java.util.Date;
 // TABLE 도 같은 전략으로 가져오기때문에 문제없음
 // hibernate5 버전 이후부터는 default 값이 TABLE
 public class Member {
-    @Id @GeneratedValue
-    @Column(name = "MEMBER_NAME")
+    @Id
+    @GeneratedValue
+    @Column(name = "MEMBER_ID")
     private Long id;
 
     @Column(name = "USERNAME")
     private String username;
 
     @ManyToOne
-    @JoinColumn(name ="TEAM_ID")
+    @JoinColumn(name = "TEAM_ID")
     private Team team;
     // 실제 FK가 있는 테이블에서 기준이 되는 컬럼을 만들고 onetomany를 사용하는 테이블에서는
     // mappedBy 를 활용하여 검색만 되게하고 값을 입력하는경우는 기준이되는 테이블로 와서 입력
@@ -58,6 +59,10 @@ public class Member {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public void setTeam(Team team) {
+        this.team = team;
     }
 }
 

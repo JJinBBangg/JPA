@@ -20,54 +20,31 @@ public class Member{
     @ManyToOne(fetch = FetchType.LAZY) // team을 사용할 때만 조회
     @JoinColumn(name = "TEAM_ID")
     private Team team;
-
     @Embedded
-    private Address homeAddress;
+    private Address address;
+//    @Embedded
+//    private Period workPeriod;
 
-    @ElementCollection
-    @CollectionTable(name = "ADDRESS",
-            joinColumns = @JoinColumn(name = "MEMBER_ID")
-            )
-    private List<Address> addressList = new ArrayList<>();
 
-    @ElementCollection
-    @CollectionTable(name = "FAVORITE_FOOD",
-            joinColumns = @JoinColumn(name = "MEMBER_ID"))
-    @Column(name = "FOOD_NAME")
-    private Set<String> favoriteFood = new HashSet<>();
-    @Embedded
-    private Period workPeriod;
+//    @ElementCollection
+//    @CollectionTable(name = "ADDRESS",
+//            joinColumns = @JoinColumn(name = "MEMBER_ID")
+//            )
+//    private List<Address> addressList = new ArrayList<>();
+//
+//    @ElementCollection
+//    @CollectionTable(name = "FAVORITE_FOOD",
+//            joinColumns = @JoinColumn(name = "MEMBER_ID"))
+//    @Column(name = "FOOD_NAME")
+//    private Set<String> favoriteFood = new HashSet<>();
 
-    public List<Address> getAddressList() {
-        return addressList;
-    }
-
-    public void setAddressList(List<Address> addressList) {
-        this.addressList = addressList;
-    }
-
-    public Set<String> getFavoriteFood() {
-        return favoriteFood;
-    }
-
-    public void setFavoriteFood(Set<String> favoriteFood) {
-        this.favoriteFood = favoriteFood;
-    }
 
     public Address getHomeAddress() {
-        return homeAddress;
+        return address;
     }
 
     public void setHomeAddress(Address homeAddress) {
-        this.homeAddress = homeAddress;
-    }
-
-    public Period getWorkPeriod() {
-        return workPeriod;
-    }
-
-    public void setWorkPeriod(Period workPeriod) {
-        this.workPeriod = workPeriod;
+        this.address = homeAddress;
     }
 
     public Team getTeam() {

@@ -3,6 +3,8 @@ package jpabook.jpashop.domain;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.MappedSuperclass;
 
+import java.util.Objects;
+
 @Embeddable
 public class Address {
     private String city;
@@ -12,6 +14,7 @@ public class Address {
     public Address() {
 
     }
+
     private Address(String city, String street, String zipCode) {
         this.city = city;
         this.street = street;
@@ -32,8 +35,8 @@ public class Address {
 
     public static class Builder {
         private String city;
-        private  String street;
-        private  String zipCode;
+        private String street;
+        private String zipCode;
 
         public Builder city(String city) {
             this.city = city;
@@ -50,8 +53,23 @@ public class Address {
             return this;
         }
 
-        public Address build(){
+        public Address build() {
             return new Address(this.city, this.street, this.zipCode);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Address address = (Address) o;
+        return Objects.equals(city, address.getCity())
+                && Objects.equals(street, address.getStreet())
+                && Objects.equals(zipCode, address.getZipCode());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(city, street, zipCode);
     }
 }
