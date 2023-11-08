@@ -25,10 +25,10 @@ public class jpaMain {
 //            team.setName("teamB");
 //            em.persist(teamB);
 //
-//            Member member = new Member();
-//            member.setName("member1");
-//            member.setTeam(team);
-//            em.persist(member);
+//            Member findMember = new Member();
+//            findMember.setName("findMember");
+//            findMember.setTeam(team);
+//            em.persist(findMember);
 //
 //            Member member2 = new Member();
 //            member2.setName("member2");
@@ -72,23 +72,58 @@ public class jpaMain {
             findParent.getChildList().remove(0);
             // 컬렉션에서 삭제했을 뿐인데 영속컨텍스트에 삭제함(orphanRemoval =true) 설정
 
-            Member member = new Member();
-            member.setName("newMember");
+            Member member1 = new Member();
+            Member member2 = new Member();
+
+            member1.setName("newMember1");
+            member2.setName("newMember2");
             Address buildAddress = new Address.Builder()
                     .city("jinju")
                     .street("sadlo")
                     .zipCode("1234")  //없어도 null 로 들어가고 컴파일 오류발생하지 않음 builder pattern 사용
                     .build();
-            member.setHomeAddress(buildAddress);
-            member.getAddressList().add(member.getHomeAddress());
-            em.persist(member);
+            member1.setHomeAddress(buildAddress);
+            member1.getAddressList().add(member1.getHomeAddress());
+            // 수정하고싶어도 값타입인경우 아래처럼 새로운 객체로 이어서 수정하게 구조를 만들어야함
+            // Address 의 setter를 모두 없애고 builder pattern 활용하여 수정이 불가능하여
+            // 수정이 필요한 시점에 새로운 객채를 만들어서 넣어야함
+            // 다른맴버의 Address를 불러와서 set하는 방법은 막을 수 없을까?
+            member2.setHomeAddress(member1.getHomeAddress());
+            member2.getAddressList().add(member2.getHomeAddress());
+            // 위처럼 저장할 수는 있으나
+            // 결국 member1의 값을 수정하려 하면 새로운 객체로 갈아끼워야하기때문에 member2에 영향을 미치치 않는가?
+            member1.setHomeAddress(new Address.Builder().city("44").street("55").zipCode("66").build());
+            // 위에서 입력되는 값이 기존값과 비교하거나 필요시 저장하지 않는 로직은 사용자 편의메서드 사용하여 로직 구성
+            // 결과는 member1의 값을 수정하더라도 새로운객체로 갈아끼웠기때문에 member2의 homeAddress값에는 영향을 미치지않음
+            // 불변성 문제 해결!
+            member1.getAddressList().add(member1.getHomeAddress());
+            member1.getFavoriteFood().add("피자");
+            member1.getFavoriteFood().add("햄버거");
+            member1.getFavoriteFood().add("토스트");
+
+            em.persist(member1);
+            em.persist(member2);
+            // 피자를 지우고 백숙으로 바꾸고싶으면
+            // 자료구조상 관계없을 뿐아니라 테이블 상 member_id 와 피자를 PK로 사용하기때문에
+            // 별도로 삭제하는 방법밖에 없음
+            member1.getFavoriteFood().remove("피자");
+            member1.getFavoriteFood().add("백숙");
+            // 여기서 주목할 점은 FavoriteFood나 AddressList 의 경우 별도의 테이블로 구성되어있지만
+            // @ElementCollection과 @CollectionTable으로 만들어져서
+            // cascadeType.ALL과 고아객체의 성격을 지니고있으며
+            // fetch속성은 LAZY로 default값을 가지게 됨
 
             em.flush();
             em.clear();
 
-            Member member1 = em.find(Member.class, member.getId());
-            String city = member1.getHomeAddress().getCity();
-            System.out.println("city = " + city);
+
+            Member findMember1 = em.find(Member.class, member1.getId());
+            Member findMember2 = em.find(Member.class, member2.getId());
+
+            String city1 = findMember1.getHomeAddress().getCity();
+            System.out.println("city1 = " + city1);
+            String city2 = findMember2.getHomeAddress().getCity();
+            System.out.println("city2 = " + city2);
 
             tx.commit();
         } catch (Exception e) {
