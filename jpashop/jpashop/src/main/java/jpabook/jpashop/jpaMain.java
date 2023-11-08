@@ -72,6 +72,24 @@ public class jpaMain {
             findParent.getChildList().remove(0);
             // 컬렉션에서 삭제했을 뿐인데 영속컨텍스트에 삭제함(orphanRemoval =true) 설정
 
+            Member member = new Member();
+            member.setName("newMember");
+            Address buildAddress = new Address.Builder()
+                    .city("jinju")
+                    .street("sadlo")
+                    .zipCode("1234")  //없어도 null 로 들어가고 컴파일 오류발생하지 않음 builder pattern 사용
+                    .build();
+            member.setHomeAddress(buildAddress);
+            member.getAddressList().add(member.getHomeAddress());
+            em.persist(member);
+
+            em.flush();
+            em.clear();
+
+            Member member1 = em.find(Member.class, member.getId());
+            String city = member1.getHomeAddress().getCity();
+            System.out.println("city = " + city);
+
             tx.commit();
         } catch (Exception e) {
             e.printStackTrace();
