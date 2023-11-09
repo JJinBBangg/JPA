@@ -6,34 +6,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-public class Member {
+public class Product {
+
     @Id @GeneratedValue
-    @Column(name = "MEMBER_ID")
+    @Column(name = "PRODUCT_ID")
     private Long id;
     private String name;
-    private int age;
+    private int price;
+    private int stockAmount;
 
-    @ManyToOne
-    @JoinColumn(name = "TEAM_ID")
-    private Team team;
-
-    public Member() {
-    }
-
-    public Member(String name, int age) {
-
-        this.name = name;
-        this.age = age;
-    }
-
-    public Team getTeam() {
-        return team;
-    }
-
-    public void setTeam(Team team) {
-        this.team = team;
-    }
-    @OneToMany(mappedBy = "member" )
+    @OneToMany(mappedBy = "product")
     private List<Order> orders = new ArrayList<>();
 
     public Long getId() {
@@ -52,15 +34,21 @@ public class Member {
         this.name = name;
     }
 
-    public int getAge() {
-        return age;
+    public int getPrice() {
+        return price;
     }
 
-    public void setAge(int age) {
-        this.age = age;
+    public void setPrice(int price) {
+        this.price = price;
     }
 
+    public int getStockAmount() {
+        return stockAmount;
+    }
 
+    public void setStockAmount(int stockAmount) {
+        this.stockAmount = stockAmount;
+    }
 
     public List<Order> getOrders() {
         return orders;

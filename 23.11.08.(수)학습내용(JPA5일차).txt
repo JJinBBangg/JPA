@@ -1,106 +1,103 @@
-1.학습내용
- -JPA 프록시 
-  em.find() : 데이터 베이스를 통해 엔티티 객체를 조회
- em.getReference() : 영속성 컨텍스트를 통해 조회를 미루는 프록시(가짜) 엔티티 객체 조회 -> 실제 데이터를 활용하는 단계에서 쿼리를 날려서 조회
+1. 학습내용
+             Member member1 = new Member();
+            Member member2 = new Member();
 
-//프록시 실습
-Member member = new Member();
-member.setUsername("memberA");
-em.persist(member);
-em.flush();
-em.clear();
+            member1.setName("newMember1");
+            member2.setName("newMember2");
+            Address buildAddress = new Address.Builder()
+                    .city("jinju")
+                    .street("sadlo")
+                    .zipCode("1234")  //없어도 null 로 들어가고 컴파일 오류발생하지 않음 builder pattern 사용
+                    .build();
 
-	Member findMember = em.find(Member.class, member.getId());
-	System.out.println("findMember.getClass() = " + findMember.getClass());
-1차 캐시에 데이터 불러오고나면
-	Member refMember = em.getReference(Member.class, member.getId());
-	System.out.println("refMember.getClass() = " + refMember.getClass());
-	System.out.println("refMember.getId() = " + refMember.getId());
-여기까지는 DB 조회 없이도 출력가능하여 쿼리 날리지 않음
-	System.out.println("refMember.getUsername() = " + refMember.getUsername());
-1차 캐시에서 데이터가 있으면 proxy 의 target이 1차캐시에서 조회
-	// Hibernate.initialize(refMember); // username 조회 하지 않고 1차캐시에 영속성 컨텍스트 등록하는방법(쿼리를 날리게됨)
-사용할 때 쿼리를 날리게 됨
+            member1.getHomeAddress();
+            Address buildAddress2 = new Address.Builder()
+                    .city("jinju1")
+                    .street("sadlo")
+                    .zipCode("12344") 
+                    .build();
+            member1.setHomeAddress(buildAddress2);
 
-위의 em.find() 와 em.reference() 순서가 바뀌더라도 1차캐시에 데이터가 있으면
-find() 에서도 쿼리를 날리지 않고 1차캐시를 사용하게됨
-특이점은 ref 먼저 조회시 class타입이 proxy로 나오고 이후에 find조회하더라도
-두클래스의 타입 모두 proxy로 조회되고 반대의 경우에는 두클레스 모두 Member 타입임
+            member1.getAddressList().add(buildAddress);
+            // 수정하고싶어도 값타입인경우 아래처럼 새로운 객체로 이어서 수정하게 구조를 만들어야함
+            // Address 의 setter를 모두 없애고 builder pattern 활용하여 수정이 불가능하여
+            // 수정이 필요한 시점에 새로운 객채를 만들어서 넣어야함
+            // 다른맴버의 Address를 불러와서 set하는 방법은 막을 수 없을까?
+            member2.setHomeAddress(member1.getHomeAddress());
+            member2.getAddressList().add(member2.getHomeAddress());
+            // 위처럼 저장할 수는 있으나
+            // 결국 member1의 값을 수정하려 하면 새로운 객체로 갈아끼워야하기때문에 member2에 영향을 미치치 않는가?
+            member1.setHomeAddress(new Address.Builder().city("44").street("55").zipCode("66").build());
+            // 위에서 입력되는 값이 기존값과 비교하거나 필요시 저장하지 않는 로직은 사용자 편의메서드 사용하여 로직 구성
+            // 결과는 member1의 값을 수정하더라도 새로운객체로 갈아끼웠기때문에 member2의 homeAddress값에는 영향을 미치지않음
+            // 불변성 문제 해결!
+            member1.getAddressList().add(member1.getHomeAddress());
+            member1.getFavoriteFood().add("피자");
+            member1.getFavoriteFood().add("햄버거");
+            member1.getFavoriteFood().add("토스트");
 
+            em.persist(member1);
+            em.persist(member2);
+            // 피자를 지우고 백숙으로 바꾸고싶으면
+            // 자료구조상 관계없을 뿐아니라 테이블 상 member_id 와 피자를 PK로 사용하기때문에
+            // 별도로 삭제하는 방법밖에 없음
+            member1.getFavoriteFood().remove("피자");
+            member1.getFavoriteFood().add("백숙");
+            // 여기서 주목할 점은 FavoriteFood나 AddressList 의 경우 별도의 테이블로 구성되어있지만
+            // @ElementCollection과 @CollectionTable으로 만들어져서
+            // cascadeType.ALL과 고아객체의 성격을 지니고있으며
+            // fetch속성은 LAZY로 default값을 가지게 됨
 
-@ManyToOne(fetch = FetchType.XXX) default값 EAGER(LAZY권장)
-@OneToOne(fetch = FetchType.XXX) default값 EAGER(LAZY권장)
-@OneToMany(fetch = FetchType.XXX) default값 LAZY(수정하지않고 필요한 경우에만 EAGER로 수정하여 사용)
-   1. LAZY(지연로딩) : 해당 JOIN되는 정보를 사용하지 않으면 JOIN하지 않고 조회
-   Team team = new Team();
-team.setName("teamA");
-em.persist(team);
+            //member1에서 기존의 buildAddress 값을 지우고싶은경우 같은형태의 값을 넣으면
+            // equals 로 비교해서 지워줌 하지만 반드시 equals 와 hashCode override 하고 사용 권장
 
-Member member = new Member();
-member.setName("member1");
-member.setTeam(team);
-em.persist(member);
-
-em.flush();
-em.clear();
-
-System.out.println("===================");
-Member findMember = em.find(Member.class, member.getId());
-System.out.println("findMember.getTeam().getClass() = " + findMember.getTeam().getClass());
-// team의 정보조회 없이 team.getClass(); 조회시 Proxy로 조회하게됨
-System.out.println("findMember.getTeam().getName() = " + findMember.getTeam().getName());
-// 위 team을 불러오게되면 team을 join해서 조회
-
-member만 사용하게되는 로직에서는 이점이 있으나 member와 team이 자주 같이 사용된다면 쿼리가 2번 나가야하니 성능 저하될 수 있음
-
-   2. EAGER(즉시로딩)
-member 조회시 반드시 team 정보도 가져오게됨
-실무에서는 사용을 지양해야함(불필요한 정보 외에도 예상외의 sql이 날라가는경우가있음)LAZY권장
-
- - 영속성 전의
-@OneToMany(mappedBy=("parent", cascade=CascadeType.XXX) 
-  1. ALL : 1:N 의 관계 객체에서 1의 객체를 저장할 때 N의 정보도 같이 em.persist()(영속성 컨텍스트로 만들어줌) - 모두포함(PERSIST, MERGE, REMOVE, REFRESH, DETACH)
-  2. DETACH : EntityManager가 detach() 메서드로 부모 엔티티를 분리(detach)할 때 연관 엔티티도 분리됩니다.
-  3. MERGE :  수정(UPDATE) 연산을 Cascade합니다. 부모 엔티티가 수정될 때 연관 엔티티도 수정됩니다.
-  4. PERSIST : 저장(INSERT) 연산을 Cascade합니다. 부모 엔티티가 저장될 때 연관 엔티티도 저장됩니다.부모 엔티티가 새로운 상태로 만들어질 때 연관 엔티티도 새로운 상태로 만들어집니다.
-  5. REFRESH : EntityManager가 refresh() 메서드로 부모 엔티티를 리프레시할 때 연관 엔티티도 리프레시됩니다.
-  6. REMOVE : 삭제(DELETE) 연산을 Cascade합니다. 부모 엔티티가 삭제될 때 연관 엔티티도 삭제됩니다.
-
-ALL, PERSIST 정도만 실무에서 권장 
-실무에서 필요한 경우는 하나의 부모(소유자)만 사용하는 경우 CascadeType을 설정해서 사용하면 편리함
-사용 예) 게시글과 첨부파일
-사용주의 예) 첨부파일을 여러곳에서 사용하거나 다른 부모 관계를 사용하는 경우
-parent와 child의 LIFE cycle을 고려해서 사용하거나 단일 소유자인 경우 사용
-
-- 고아객체
-@OneToMany(mappedBy=("parent", cascade=CascadeType.XXX, orphanRemoval = true)
- orphanRemoval = true 설정시
- 아래처럼 사용할 시 컬랙션(list)에서만 삭제했을 뿐인데 영속성 컨텍스트에 삭제반영됨 
-Parent findParent = em.find(Parent.class, parent.getId());
-findParent.getChildList().remove(0);
-Parent객체를 영속성 컨텍스트에서 지워도 자식객체 모두가 영속성 컨텍스트에서 삭제됨
-orphanRemoval 설정 또한 굉장히 유의해서 사용해야함(참조하는 곳이 한개일 때, 특정 엔티티가 개인적으로 소유한 관계에서만 사용)
-
-cascade와 orphanRemoval 차이점은
-cascade 영속성 컨텍스트 상의 em.XXX() 사용해야 반영되고
-orphanRemoval 은 객체만 삭제되어도 바로 영속성컨텍스트에 반영됨
-
- -- 값타입 
- 최상위 타입으로는
- 1. Entity(객체)
-   - 객체의 주소값을 통해 추적가능(내부의 값이 변경되더라도 ref의 주소값을 별도로 가지고있음)
- 2.기본타입
-   - int, Integer, String 단순한 값으로사용하는 기본타입 객체로
-   - 식별자가 없고 값만 존재하기 때문에 추적이 불가능
-
-   1) 기본타입 : int, double, float, char ...
-    레퍼클스 : Integer, Long, Double ... 
-    String
-
-  2) 임베디드 타입(embedded type, 복합 값 타입)
-   3) 컬렉션타입(collection value type)
+            em.flush();
+            em.clear();
 
 
+            Member findMember1 = em.find(Member.class, member1.getId());
+            Member findMember2 = em.find(Member.class, member2.getId());
+
+            List<Address> addressList = findMember1.getAddressList();
+            for (Address address : addressList) {
+                System.out.println("address = " + address.getCity());
+                System.out.println("street = " + address.getStreet());
+                System.out.println("zipCode = " + address.getZipCode());
+                System.out.println("==========================");
+            }
+
+            findMember1.getAddressList().remove(buildAddress);
+            findMember1.getAddressList().remove(buildAddress2);
+            
+            findMember1.getAddressList().add(new Address.Builder()
+                    .city("44")
+                    .street("55")
+                    .zipCode("66")
+                    .build());
+//            findMember1.getAddressList().add(new Address.Builder()
+//                    .city("44")
+//                    .street("55")
+//                    .zipCode("66")
+//                    .build());
+//            findMember1.getAddressList().add(new Address.Builder()
+//                    .city("44")
+//                    .street("55")
+//                    .zipCode("66")
+//                    .build());
+            //collection 실무사용 X list 같은경우 기존 pk값인 MEMBER_ID에 걸리 모든 데이터를 지우고
+            //현재 컬렉션 list에 남아있는 모든값을 다시 밀어넣음 (절대사용하면안되는상태)
+            // 해결방법은 @OrderColumn 사용 하면되기는하나 별도의 컬럼에 순서를 매기개되면
+            // Entity를 사용하는것과 별반 다르지 않으니 사용하지않음
+
+            findMember1.setHomeAddress(findMember1.getAddressList().get(0));
+            String city1 = findMember1.getHomeAddress().getCity();
+            System.out.println("city1 = " + city1);
+            String city2 = findMember2.getHomeAddress().getCity();
+            System.out.println("city2 = " + city2);
+            tx.commit();
+
+<JPQL>
+ 1. 
 
 
 
