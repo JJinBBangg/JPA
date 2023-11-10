@@ -13,6 +13,8 @@ public class Member {
     private String name;
     private int age;
 
+    @Enumerated(EnumType.STRING)
+    private MemberType type;
     @ManyToOne
     @JoinColumn(name = "TEAM_ID")
     private Team team;

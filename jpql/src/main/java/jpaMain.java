@@ -35,6 +35,19 @@ public class jpaMain {
             em.flush();
             em.clear();
 
+            String jpql1 = "select m from Member m join m.team t";
+            String jpql2 = "select m from Member m left join m.team t on m.id = t.id and t.name = :teamName order by m.id desc ";
+            String jpql3 = "select m from Member m join Team t on m.name = t.name";
+            List<Member> resultList = em.createQuery(jpql3, Member.class)
+//                    .setParameter("teamName", "teamA")
+                    .setFirstResult(0)
+                    .setMaxResults(10)
+                    .getResultList();
+            for (Member member : resultList) {
+                System.out.println("member.getName() = " + member.getName());
+                
+            }
+            System.out.println("=============================");
             List<Member> members = em.createQuery("select m from Member m order by m.id desc ", Member.class)
                     .setFirstResult(0)
                     .setMaxResults(10)
