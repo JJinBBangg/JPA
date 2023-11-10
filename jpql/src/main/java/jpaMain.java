@@ -41,6 +41,8 @@ public class jpaMain {
             em.flush();
             em.clear();
 
+            // 아래와 같이 fetch join 사용 시  join된 테이블을 as(별칭) 가급적 사용하지 말것 필요한데이터를 필터링하는 곳에서
+            // 의도치 않은 데이터가 없어질 수도 있음
             List<Team> resultList2 = em.createQuery("select distinct t from Team t left join fetch t.members", Team.class).getResultList();
             for (Team team4 : resultList2) {
                 System.out.println("team4.getName() = " + team4.getName()+"|" + team4.getMembers().size());
