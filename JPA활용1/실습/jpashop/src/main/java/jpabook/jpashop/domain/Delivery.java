@@ -2,15 +2,17 @@ package jpabook.jpashop.domain;
 
 import jakarta.persistence.*;
 import lombok.Builder;
+import lombok.Getter;
 
 @Entity
+@Getter
 public class Delivery {
 
     @Id @GeneratedValue
     @Column(name = "DELIVERY_ID")
     private Long id;
 
-    @OneToOne(mappedBy = "delivery")
+    @OneToOne(fetch = FetchType.LAZY,mappedBy = "delivery")
     private Order order;
 
     @Embedded
@@ -22,7 +24,8 @@ public class Delivery {
     protected Delivery() {
     }
     @Builder
-    private Delivery(Order order, Address address) {
+    private Delivery(Long id, Order order, Address address) {
+        this.id = id;
         this.order = order;
         this.address = address;
     }

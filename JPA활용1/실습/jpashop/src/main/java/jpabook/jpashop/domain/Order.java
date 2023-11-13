@@ -20,10 +20,10 @@ public class Order {
     @JoinColumn(name = "MEMBER_ID")
     private Member member;
 
-    @OneToMany(mappedBy = "order")
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> orderItems = new ArrayList<>();
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "DELIVERY_ID")
     private Delivery delivery;
 
@@ -34,10 +34,11 @@ public class Order {
 
     protected Order() {
     }
-    public void addOrder(Member member){
+    public void setMember(Member member){
         this.member = member;
         member.getOrders().add(this);
     }
+
     @Builder
     private Order(Long id, Member member, List<OrderItem> orderItems, Delivery delivery, LocalDateTime orderDate, OrderStatus status) {
         this.id = id;
@@ -46,5 +47,7 @@ public class Order {
         this.delivery = delivery;
         this.orderDate = orderDate;
         this.status = status;
+        Delivery.builder().order(this).build();
+        OrderItem.builder().order(this).build();
     }
 }

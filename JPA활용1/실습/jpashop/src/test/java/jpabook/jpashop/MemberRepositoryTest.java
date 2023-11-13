@@ -1,6 +1,11 @@
 package jpabook.jpashop;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jpabook.jpashop.domain.Address;
+import jpabook.jpashop.domain.Delivery;
 import jpabook.jpashop.domain.Member;
+import jpabook.jpashop.domain.Order;
 import jpabook.jpashop.repository.MemberRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -16,7 +21,10 @@ import org.springframework.transaction.annotation.Transactional;
 class MemberRepositoryTest
 {
     @Autowired
-    MemberRepository memberRepository;
+    private MemberRepository memberRepository;
+
+    @PersistenceContext
+    private EntityManager em;
 
     @Test
     @DisplayName("JPA H2 연결 test")
@@ -34,4 +42,5 @@ class MemberRepositoryTest
         Assertions.assertThat(member.getId()).isEqualTo(newMember.getId());
         Assertions.assertThat(member.getName()).isEqualTo(newMember.getName());
     }
+
 }
