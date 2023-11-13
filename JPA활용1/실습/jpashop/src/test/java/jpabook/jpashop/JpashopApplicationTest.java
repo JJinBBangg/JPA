@@ -11,7 +11,7 @@ class JpashopApplicationTest {
     @Test
     @DisplayName("기본테스트")
     public void contextLoads(){
-        
+
     }
 
 }

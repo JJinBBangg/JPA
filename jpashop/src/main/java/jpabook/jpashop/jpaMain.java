@@ -167,6 +167,14 @@ public class jpaMain {
 //            System.out.println("city1 = " + city1);
 //            String city2 = findMember2.getHomeAddress().getCity();
 //            System.out.println("city2 = " + city2);
+            Member member = new Member();
+            member.setName("member1");
+            member.setHomeAddress(new Address.Builder()
+                            .street(":")
+                            .city(":")
+                            .zipCode(":")
+                            .build());
+
             tx.commit();
         } catch (Exception e) {
             e.printStackTrace();
