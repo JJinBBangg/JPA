@@ -1,8 +1,8 @@
-package jpabook.jpashop.domain.item;
+package jpabook.jpashop.entity.item;
 
 import jakarta.persistence.*;
-import jpabook.jpashop.domain.CategoryItem;
-import lombok.Builder;
+import jpabook.jpashop.entity.CategoryItem;
+import jpabook.jpashop.exception.NotEnoughStockException;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -30,5 +30,13 @@ public abstract class Item {
         this.price = price;
         this.stockQuantity = stockQuantity;
         this.categories = categories;
+    }
+
+    public void addStock(int quantity){
+        this.stockQuantity += quantity;
+    }
+    public void removeStock(int quantity){
+        if(this.stockQuantity - quantity < 0) throw new NotEnoughStockException();
+        this.stockQuantity -= quantity;
     }
 }

@@ -1,7 +1,7 @@
-package jpabook.jpashop.domain;
+package jpabook.jpashop.entity;
 
 import jakarta.persistence.*;
-import jpabook.jpashop.domain.item.Item;
+import jpabook.jpashop.entity.item.Item;
 import lombok.Builder;
 import lombok.Getter;
 

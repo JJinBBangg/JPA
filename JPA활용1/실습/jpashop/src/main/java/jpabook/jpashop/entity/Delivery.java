@@ -1,4 +1,4 @@
-package jpabook.jpashop.domain;
+package jpabook.jpashop.entity;
 
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -24,9 +24,9 @@ public class Delivery {
     protected Delivery() {
     }
     @Builder
-    private Delivery(Long id, Order order, Address address) {
-        this.id = id;
+    private Delivery( Order order, Address address, DeliveryStatus status) {
         this.order = order;
         this.address = address;
+        this.status = status;
     }
 }

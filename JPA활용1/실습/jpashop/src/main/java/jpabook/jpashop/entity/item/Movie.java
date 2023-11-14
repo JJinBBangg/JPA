@@ -1,7 +1,7 @@
-package jpabook.jpashop.domain.item;
+package jpabook.jpashop.entity.item;
 
 import jakarta.persistence.Entity;
-import jpabook.jpashop.domain.CategoryItem;
+import jpabook.jpashop.entity.CategoryItem;
 import lombok.Builder;
 
 import java.util.List;

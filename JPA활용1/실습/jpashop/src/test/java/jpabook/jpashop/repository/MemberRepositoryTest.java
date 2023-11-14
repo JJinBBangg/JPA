@@ -1,12 +1,8 @@
-package jpabook.jpashop;
+package jpabook.jpashop.repository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jpabook.jpashop.domain.Address;
-import jpabook.jpashop.domain.Delivery;
-import jpabook.jpashop.domain.Member;
-import jpabook.jpashop.domain.Order;
-import jpabook.jpashop.repository.MemberRepository;
+import jpabook.jpashop.entity.Member;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,10 +33,11 @@ class MemberRepositoryTest
                 .build();
         Long saveMemberId = memberRepository.save(newMember);
         //when
-        Member member = memberRepository.find(saveMemberId);
+        Member member = memberRepository.findOne(saveMemberId);
         //then
         Assertions.assertThat(member.getId()).isEqualTo(newMember.getId());
         Assertions.assertThat(member.getName()).isEqualTo(newMember.getName());
     }
+
 
 }
