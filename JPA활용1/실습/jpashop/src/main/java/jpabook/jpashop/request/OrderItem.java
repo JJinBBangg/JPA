@@ -4,15 +4,15 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-public class Item {
+public class OrderItem {
     private Long itemId;
     private int count;
 
-    public Item() {
+    public OrderItem() {
     }
 
     @Builder
-    private Item(Long itemId, int count) {
+    private OrderItem(Long itemId, int count) {
         this.itemId = itemId;
         this.count = count;
     }

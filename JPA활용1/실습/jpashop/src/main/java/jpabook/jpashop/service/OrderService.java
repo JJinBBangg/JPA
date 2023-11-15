@@ -70,14 +70,15 @@ public class OrderService {
 
     ///////////////////////////class 내부 메소드///////////////////////////
     private List<OrderItem> getOrderItems(CreateOrder createOrder) {
-        return createOrder.getItems()
+        log.info(">>>>>>>>>>>>>>>>{}",createOrder.getOrderItems().size());
+        return createOrder.getOrderItems()
                 .stream()
-                .map((item) -> {
-                    Item one = itemRepository.findOne(item.getItemId());
+                .map((orderItem) -> {
+                    Item findItem = itemRepository.findOne(orderItem.getItemId());
                     return OrderItem.builder()
-                            .orderPrice(one.getPrice())
-                            .count(item.getCount())
-                            .item(one)
+                            .orderPrice(findItem.getPrice())
+                            .count(orderItem.getCount())
+                            .item(findItem)
                             .build();
                 }).collect(Collectors.toList());
     }

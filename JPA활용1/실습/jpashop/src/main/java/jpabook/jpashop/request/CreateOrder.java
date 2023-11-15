@@ -9,7 +9,7 @@ import java.util.List;
 public class CreateOrder {
 
     private Long memberId;
-    private List<Item> items;
+    private List<OrderItem> orderItems;
 
     private String city;
     private String street;
@@ -19,9 +19,9 @@ public class CreateOrder {
     }
 
     @Builder
-    private CreateOrder(Long memberId, List<Item> items, String city, String street, String zipCode) {
+    private CreateOrder(Long memberId, List<OrderItem> orderItems, String city, String street, String zipCode) {
         this.memberId = memberId;
-        this.items = items;
+        this.orderItems = orderItems;
         this.city = city;
         this.street = street;
         this.zipCode = zipCode;

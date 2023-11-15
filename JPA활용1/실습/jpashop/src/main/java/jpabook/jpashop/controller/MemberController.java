@@ -6,11 +6,12 @@ import jpabook.jpashop.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
+@Controller
 @RequiredArgsConstructor
 @Slf4j
 public class MemberController {
@@ -26,9 +27,9 @@ public class MemberController {
     public List<Member> getMembers(){
         return memberService.findMembers();
     }
-    @PostMapping("/members")
-    public Long setMembers(@RequestBody CreateMember createMember){
-        log.info(">>>>>>>>>>>>>>>>>>>{}",createMember);
-        return memberService.join(createMember);
+    @GetMapping("/members/new")
+    public String setMembers( Model model){
+        model.addAttribute("member",CreateMember.builder().build());
+        return "members/createMemberForm";
     }
 }
