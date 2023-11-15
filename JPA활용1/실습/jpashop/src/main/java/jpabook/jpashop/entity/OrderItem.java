@@ -24,16 +24,22 @@ public class OrderItem {
     private Item item;
 
     private int orderPrice;
+
     private int count;
 
     protected OrderItem() {
     }
+
+    // === 생성 로직 ===
     @Builder
-    private OrderItem(Long id, Order order, Item item, int orderPrice, int count) {
-        this.id = id;
+    private OrderItem(Order order, Item item, int orderPrice, int count) {
         this.order = order;
         this.item = item;
         this.orderPrice = orderPrice;
         this.count = count;
+    }
+    // === 비지니스 로직 ===
+    public int getTotalPrice(){
+        return orderPrice * count;
     }
 }

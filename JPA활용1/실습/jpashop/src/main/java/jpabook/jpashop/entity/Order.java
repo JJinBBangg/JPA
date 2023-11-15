@@ -2,6 +2,7 @@ package jpabook.jpashop.entity;
 
 import jakarta.persistence.*;
 import jpabook.jpashop.entity.item.Item;
+import jpabook.jpashop.exception.AlreadyDeliveryException;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -13,7 +14,8 @@ import java.util.List;
 @Table(name = "ORDERS")
 @Getter
 public class Order {
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     @Column(name = "ORDER_ID")
     private Long id;
 
@@ -31,46 +33,78 @@ public class Order {
     private LocalDateTime orderDate;
 
     @Enumerated(EnumType.STRING)
-    private OrderStatus status;
+    private OrderStatus status = OrderStatus.ORDER;
 
     protected Order() {
     }
-    public void setMember(Member member){
+
+    public void setMember(Member member) {
         this.member = member;
         member.getOrders().add(this);
     }
 
+    // === 기본생성 로직 ===
+    // 기본 주문 생성은  builder 로 생성하고 이외 수정 및 취소는 별도의 메서드를 만들어서 처리
     @Builder
-    private Order(Member member, List<OrderItem> orderItems, Delivery delivery,OrderStatus status) {
+    private Order(Member member, List<OrderItem> orderItems, Address address, OrderStatus status) {
         this.member = member;
-        this.delivery = delivery;
-        this.orderDate = LocalDateTime.now();
-        this.status = status;
+        // 주소값이 입력없으면 기존 member의 주소값을 사용하고 입력되는 주소값이 있으면 새로운주소사용
+        this.delivery =
+                (delivery == null ? Delivery.builder()
+                                            .address(member.getAddress())
+                                            .build()
+                                    :
+                                    Delivery.builder()
+                                            .address(address)
+                                            .build());
 
+        this.orderDate = LocalDateTime.now();
+        // status 가 입력되지않으면서 최초 builder 사용 시 기본값을 ORDER로 설정
+        this.status = (status == null ? OrderStatus.ORDER : status);
+        // 주문으로 들어온 제품의 갯수와 가격 정보에 주문을 연결시키는 연관관계 메서드
         List<OrderItem> newItems = new ArrayList<>();
         for (OrderItem orderItem : orderItems) {
-            OrderItem item = OrderItem.builder()
+            OrderItem newItem = OrderItem.builder()
                     .count(orderItem.getCount())
                     .orderPrice(orderItem.getOrderPrice())
                     .order(this)
+                    .item(orderItem.getItem())
                     .build();
-            newItems.add(item);
-        }
+            newItems.add(newItem);
 
+            //주문한 상품의 갯수를 차감
+            newItem.getItem().removeStock(orderItem.getCount());
+            // 차감 및 추가 작업을 OrderItem 객체에서 하는것이 맞는가? 여기서 실행하는것이 맞은가?
+            // CascadeType.ALL인데 넘어가야하는가? 결과적으로 생성 메서드를 사용하는 쪽에서 사용하는것이 맞음
+            // OrderItem 이 생성되는 시점에서 item갯수를 차감하도록 생성
+        }
         this.orderItems = newItems;
     }
-//    public void addOrder(Long id, Member member, List<OrderItem> orderItems, Delivery delivery){
-//        member.getOrders().add(this);
-//        if(orderItems.get(0) != null){
-//            for (OrderItem orderItem : orderItems) {
-//                OrderItem.builder()
-//                        .id(id)
-//                        .orderPrice(orderItem.getOrderPrice())
-//                        .count(orderItem.getCount())
-//                        .order(this)
-//                        .build();
-//            }
-//        }
-//        if(delivery != null)Delivery.builder().order(this).build();
-//    }
+
+    // === 비지니스 로직 ===
+    public void cancelOrder() {
+        if (this.delivery.getStatus() == DeliveryStatus.CAMP) {
+            throw new AlreadyDeliveryException();
+        }
+        changeStatus(OrderStatus.CANCEL);
+        List<OrderItem> orderItemList = this.orderItems;
+        for (OrderItem orderItem : orderItemList) {
+            //취소된 상품 갯수를 다시 더 해준다
+            orderItem.getItem().addStock(orderItem.getCount());
+        }
+    }
+
+    // 내부에서 사용하는 method를 통해서만 수정가능하도록 private changeStatus 메서드 생성
+    private void changeStatus(OrderStatus status) {
+        this.status = status;
+    }
+
+    // === 조회 로직 ===
+    // 전체 주문 가격 조회
+    public int getTotalPrice(){
+        List<OrderItem> orderItems = this.orderItems;
+        return orderItems.stream()
+                .mapToInt(OrderItem::getTotalPrice)
+                .sum();
+    }
 }

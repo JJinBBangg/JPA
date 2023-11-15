@@ -27,6 +27,10 @@ public class Delivery {
     private Delivery( Order order, Address address, DeliveryStatus status) {
         this.order = order;
         this.address = address;
+        this.status = (status == null ? DeliveryStatus.READY : status);
+    }
+
+    public void setStatus(DeliveryStatus status) {
         this.status = status;
     }
 }
