@@ -3,21 +3,29 @@ package jpabook.jpashop.entity;
 import jakarta.persistence.*;
 import jpabook.jpashop.entity.item.Item;
 import jpabook.jpashop.exception.AlreadyDeliveryException;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+
+import static lombok.AccessLevel.*;
 
 @Entity
 @Table(name = "ORDERS")
 @Getter
+@NoArgsConstructor(access = PROTECTED)
 public class Order {
     @Id
     @GeneratedValue
     @Column(name = "ORDER_ID")
     private Long id;
+
+    private String orderNumber;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEMBER_ID")
@@ -35,8 +43,6 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private OrderStatus status = OrderStatus.ORDER;
 
-    protected Order() {
-    }
 
     public void setMember(Member member) {
         this.member = member;
@@ -45,19 +51,19 @@ public class Order {
 
     // === 기본생성 로직 ===
     // 기본 주문 생성은  builder 로 생성하고 이외 수정 및 취소는 별도의 메서드를 만들어서 처리
+    // CascadeType.All 에 유의해서 사용해야함(delivery 와 orderItems 는 최초 입력되는 값이 바로 persist됨
     @Builder
     private Order(Member member, List<OrderItem> orderItems, Address address, OrderStatus status) {
+        this.orderNumber = UUID.randomUUID().toString();
         this.member = member;
-        // 주소값이 입력없으면 기존 member의 주소값을 사용하고 입력되는 주소값이 있으면 새로운주소사용
-        this.delivery =
-                (delivery == null ? Delivery.builder()
+        // 주소값이 입력없으면 member 기존주소값을 사용하고 입력되는 주소값이 있으면 새로운 주소사용
+        this.delivery = (address == null ? Delivery.builder()
                                             .address(member.getAddress())
                                             .build()
-                                    :
-                                    Delivery.builder()
-                                            .address(address)
-                                            .build());
-
+                                            :
+                                            Delivery.builder()
+                                                    .address(address)
+                                                    .build());
         this.orderDate = LocalDateTime.now();
         // status 가 입력되지않으면서 최초 builder 사용 시 기본값을 ORDER로 설정
         this.status = (status == null ? OrderStatus.ORDER : status);
@@ -71,12 +77,11 @@ public class Order {
                     .item(orderItem.getItem())
                     .build();
             newItems.add(newItem);
-
             //주문한 상품의 갯수를 차감
             newItem.getItem().removeStock(orderItem.getCount());
             // 차감 및 추가 작업을 OrderItem 객체에서 하는것이 맞는가? 여기서 실행하는것이 맞은가?
             // CascadeType.ALL인데 넘어가야하는가? 결과적으로 생성 메서드를 사용하는 쪽에서 사용하는것이 맞음
-            // OrderItem 이 생성되는 시점에서 item갯수를 차감하도록 생성
+            // OrderItem 객체가 생성되는 시점에서 item갯수를 차감하도록 지정
         }
         this.orderItems = newItems;
     }

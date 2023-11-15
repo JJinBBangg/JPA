@@ -2,11 +2,16 @@ package jpabook.jpashop.entity;
 
 import jakarta.persistence.*;
 import jpabook.jpashop.entity.item.Item;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import static lombok.AccessLevel.*;
 
 @Entity
 @Getter
+@NoArgsConstructor(access = PROTECTED)
 public class CategoryItem {
 
     @Id @GeneratedValue
@@ -21,8 +26,6 @@ public class CategoryItem {
     @JoinColumn(name = "CATEGORY_ID")
     private Category category;
 
-    protected CategoryItem() {
-    }
     @Builder
     private CategoryItem(Long id, Item item, Category category) {
         this.id = id;

@@ -7,24 +7,70 @@ import jpabook.jpashop.repository.MemberRepository;
 import jpabook.jpashop.repository.OrderRepository;
 import jpabook.jpashop.request.CreateOrder;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
+@Slf4j
 public class OrderService {
 
     private final OrderRepository orderRepository;
     private final MemberRepository memberRepository;
     private final ItemRepository itemRepository;
 
-    public void join(CreateOrder createOrder) {
-        //주문 회원정보 조회
+
+    // 주문 로직
+    public Long join(CreateOrder createOrder) {
+        // 주문회원 조회
         Member orderMember = memberRepository.findOne(createOrder.getMemberId());
-        //주문 물품 정보 조회
-        List<OrderItem> itemList = createOrder.getItems()
+
+        // 주문물품 조회
+        List<OrderItem> orderItems = getOrderItems(createOrder); //(itemId, count 사용하여 OrderItems 생성)
+
+        // 배송정보 생성
+        Address address = getAddress(createOrder); //입력된 주소로 Address 생성
+        if((address.equals(orderMember.getAddress()) || (address.getCity() == null))) {
+            //회원정보 주소지와 같은 경우
+            address = null; // null로 입력하면 회원의 기존 배송지 사용
+        } else {
+            //회원정보 주소지와 다른 경우
+            //새로운 주소지 추가 로직...
+        }
+
+        // 주문 생성
+        Order order = Order.builder()
+                .member(orderMember)
+                .orderItems(orderItems)
+                .address(address)
+                .build();
+        // 주문 저장
+        orderRepository.save(order);
+
+        return order.getId();
+    }
+
+
+    // 취소 로직
+    public void cancel(Long orderId){
+        Order findOrder = orderRepository.findOne(orderId);
+        findOrder.cancelOrder();
+    }
+    // 검색 로직
+    @Transactional(readOnly = true)
+    public List<Order> findOrder(String username){
+        Member byNameWithOrder = memberRepository.findByNameWithOrder(username);
+        return byNameWithOrder.getOrders();
+    }
+
+    ///////////////////////////class 내부 메소드///////////////////////////
+    private List<OrderItem> getOrderItems(CreateOrder createOrder) {
+        return createOrder.getItems()
                 .stream()
                 .map((item) -> {
                     Item one = itemRepository.findOne(item.getItemId());
@@ -34,25 +80,13 @@ public class OrderService {
                             .item(one)
                             .build();
                 }).collect(Collectors.toList());
-        // 새로운 주소 선택 후 주문 시
-        // 회원의 기존 주소와 별도의 배송지 입력 시 회원의 주소를 추가로 저장하는로직
-        Address address = Address.builder()
+    }
+
+    private static Address getAddress(CreateOrder createOrder) {
+        return Address.builder()
                 .city(createOrder.getCity())
                 .street(createOrder.getStreet())
                 .zipCode(createOrder.getZipCode())
                 .build();
-        if(address == orderMember.getAddress()){
-            address = null;
-        } else {
-            // 회원의 주소값을 추가로 저장하는 로직
-        }
-
-        // 저장
-        orderRepository.save(Order.builder()
-                .member(orderMember)
-                .orderItems(itemList)
-                .address(address)
-                .build());
-
     }
 }

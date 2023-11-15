@@ -90,15 +90,11 @@ class OrderRepositoryTest {
 
         List<OrderItem> orderItemList = List.of(orderItem, orderItem2);
 
-        Delivery delivery = Delivery.builder()
-                .status(DeliveryStatus.READY)
-                .address(findMember.getAddress())
-                .build();
 
         Order order = Order.builder()
                 .member(findMember)
                 .orderItems(orderItemList)
-                .delivery(delivery)
+                .address(findMember.getAddress())
 //                .status(OrderStatus.ORDER) // null로 들어가면 기본값을 order로 설정
                 .build();
 
@@ -180,37 +176,24 @@ class OrderRepositoryTest {
 
         List<OrderItem> orderItemList = List.of(orderItem, orderItem2);
 
-        Delivery delivery1 = Delivery.builder()
-                .status(DeliveryStatus.READY)
-                .address(findMember.getAddress())
-                .build();
-        Delivery delivery2 = Delivery.builder()
-                .status(DeliveryStatus.READY)
-                .address(findMember1.getAddress())
-                .build();
-        Delivery delivery3 = Delivery.builder()
-                .status(DeliveryStatus.READY)
-                .address(findMember1.getAddress())
-                .build();
-
 
         Order order = Order.builder()
                 .member(findMember)
                 .orderItems(orderItemList)
-                .delivery(delivery1)
+                .address(findMember.getAddress())
 //                .status(OrderStatus.ORDER) // null로 들어가면 기본값을 order로 설정
                 .build();
 
         Order order2 = Order.builder()
                 .member(findMember1)
                 .orderItems(orderItemList)
-                .delivery(delivery2)
+                .address(findMember1.getAddress())
                 .build();
 
         Order order3 = Order.builder()
                 .member(findMember1)
                 .orderItems(orderItemList)
-                .delivery(delivery3)
+                .address(findMember1.getAddress())
                 .build();
         //when
         orderRepository.save(order);
@@ -222,9 +205,10 @@ class OrderRepositoryTest {
         em.clear();
         //then
         // 쿼리가 어떻게 나가는지 확인하고 튜닝하기
-        List<Order> findByName = orderRepository.findByUsername("member1");
-        for (Order findOrder : findByName) {
-            System.out.println("findOrder.getId() = " + findOrder.getId());
+        Member findByName = memberRepository.findByNameWithOrder("member2");
+        List<Order> orders = findByName.getOrders();
+        for (Order order1 : orders) {
+            System.out.println("order1.getId() = " + order1.getId());
         }
     }
 }

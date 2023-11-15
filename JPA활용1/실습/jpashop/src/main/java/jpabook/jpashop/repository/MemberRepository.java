@@ -2,6 +2,7 @@ package jpabook.jpashop.repository;
 
 import jakarta.persistence.EntityManager;
 import jpabook.jpashop.entity.Member;
+import jpabook.jpashop.entity.Order;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -39,6 +40,11 @@ public class MemberRepository{
         return em.createQuery("select m from Member m where m.name = name", Member.class)
                 .setParameter("name", name)
                 .getResultList();
+    }
+    public Member findByNameWithOrder(String name){
+        return em.createQuery("select m from Member m join fetch m.orders where m.name = :name", Member.class)
+                .setParameter("name", name)
+                .getSingleResult();
     }
 
     public void deleteAll(){

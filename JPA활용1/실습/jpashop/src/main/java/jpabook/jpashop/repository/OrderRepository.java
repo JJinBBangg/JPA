@@ -28,11 +28,7 @@ public class OrderRepository {
         return em.createQuery("select o from Order o", Order.class).getResultList();
     }
 
-    public List<Order> findByUsername(String userName){
-        return em.createQuery("select o from Order o join fetch Member m on m.name = :name ", Order.class)
-                .setParameter("name", userName)
-                .getResultList();
-    }
+
 
     public void deleteAll(){
         em.createQuery("delete from Order").executeUpdate();

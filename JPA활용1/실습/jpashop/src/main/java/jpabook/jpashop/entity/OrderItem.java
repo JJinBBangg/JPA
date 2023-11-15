@@ -2,13 +2,17 @@ package jpabook.jpashop.entity;
 
 import jakarta.persistence.*;
 import jpabook.jpashop.entity.item.Item;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import static jakarta.persistence.FetchType.*;
+import static lombok.AccessLevel.*;
 
 @Entity
 @Getter
+@NoArgsConstructor(access = PROTECTED)
 public class OrderItem {
 
     @Id @GeneratedValue
@@ -26,9 +30,6 @@ public class OrderItem {
     private int orderPrice;
 
     private int count;
-
-    protected OrderItem() {
-    }
 
     // === 생성 로직 ===
     @Builder

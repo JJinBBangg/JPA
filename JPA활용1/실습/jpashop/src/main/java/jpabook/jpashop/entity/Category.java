@@ -1,14 +1,18 @@
 package jpabook.jpashop.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static jakarta.persistence.FetchType.*;
+import static lombok.AccessLevel.*;
 
 @Entity
+@NoArgsConstructor(access = PROTECTED)
 public class Category {
 
     @Id @GeneratedValue
@@ -28,8 +32,6 @@ public class Category {
     @OneToMany(mappedBy = "parent")
     private List<Category> child = new ArrayList<>();
 
-    protected Category() {
-    }
     @Builder
     private Category(Long id, String name, List<CategoryItem> items, List<Category> child, Category parent) {
         this.id = id;

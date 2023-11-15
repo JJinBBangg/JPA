@@ -1,11 +1,16 @@
 package jpabook.jpashop.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import static lombok.AccessLevel.*;
 
 @Entity
 @Getter
+@NoArgsConstructor(access = PROTECTED)
 public class Delivery {
 
     @Id @GeneratedValue
@@ -21,8 +26,6 @@ public class Delivery {
     @Enumerated(EnumType.STRING)
     private DeliveryStatus status;
 
-    protected Delivery() {
-    }
     @Builder
     private Delivery( Order order, Address address, DeliveryStatus status) {
         this.order = order;

@@ -1,14 +1,19 @@
 package jpabook.jpashop.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static lombok.AccessLevel.*;
+
 @Entity
 @Getter
+@NoArgsConstructor(access = PROTECTED)
 public class Member {
     @Id
     @GeneratedValue
@@ -23,8 +28,6 @@ public class Member {
     @OneToMany(mappedBy = "member")
     private List<Order> orders = new ArrayList<>();
 
-    protected Member() {
-    }
     @Builder
     private Member(String name, Address address, List<Order> orders) {
         this.name = name;
