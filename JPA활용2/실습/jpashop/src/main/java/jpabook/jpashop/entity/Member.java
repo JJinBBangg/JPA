@@ -1,6 +1,7 @@
 package jpabook.jpashop.entity;
 
 import jakarta.persistence.*;
+import jpabook.jpashop.request.UpdateMember;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -33,6 +34,18 @@ public class Member {
         this.name = name;
         this.address = address;
         this.orders = orders;
+    }
+
+    public void updateMember(UpdateMember updateMember){
+        this.name = (updateMember.getName() == null ?
+                this.name : updateMember.getName());
+
+        this.address = (updateMember.getZipcode() == null ?
+                this.address : Address.builder()
+                                .city(updateMember.getCity())
+                                .street(updateMember.getStreet())
+                                .zipcode(updateMember.getZipcode())
+                                .build());
     }
 
 }

@@ -4,7 +4,7 @@ import jakarta.persistence.EntityManager;
 import jpabook.jpashop.entity.Member;
 import jpabook.jpashop.exception.DuplicateMember;
 import jpabook.jpashop.repository.MemberRepository;
-import jpabook.jpashop.request.MemberForm;
+import jpabook.jpashop.request.CreateMember;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -38,7 +38,7 @@ class MemberServiceTest {
     @Rollback(value = false)
     void test() {
         //given
-        MemberForm memberForm = MemberForm.builder()
+        CreateMember createMember = CreateMember.builder()
                 .name("member1")
                 .city("진주")
                 .street("사들로")
@@ -46,7 +46,7 @@ class MemberServiceTest {
                 .build();
 
         //when
-        Long savedMemberId = memberService.join(memberForm);
+        Long savedMemberId = memberService.join(createMember);
         Member findMember = memberService.findOne(savedMemberId);
 
         //then
@@ -61,7 +61,7 @@ class MemberServiceTest {
     @Rollback(value = false)
     void test2() throws Exception {
         //given
-        MemberForm member1 = MemberForm.builder()
+        CreateMember member1 = CreateMember.builder()
                 .name("member1")
                 .city("진주")
                 .street("사들로")
@@ -71,7 +71,7 @@ class MemberServiceTest {
 
         //when
         //중복되지 않는 member name으로 가입 시 정상적으로 저장되는지 검증
-        MemberForm member2 = MemberForm.builder()
+        CreateMember member2 = CreateMember.builder()
                 .name("member12")
                 .city("서울")
                 .street("사들로")
@@ -91,7 +91,7 @@ class MemberServiceTest {
     @DisplayName("중복 MEBER 검증에 잘못된 값을 입력하면 오류발생")
     void test3() throws Exception {
         //given
-        MemberForm member1 = MemberForm.builder()
+        CreateMember member1 = CreateMember.builder()
                 .name("member1")
                 .city("진주")
                 .street("사들로")
@@ -101,7 +101,7 @@ class MemberServiceTest {
 
         //when
         //중복되는 name 값으로 가입 시 오류발생(IllegalStateException)
-        MemberForm member2 = MemberForm.builder()
+        CreateMember member2 = CreateMember.builder()
                 .name("member1")
                 .city("서울")
                 .street("사들로")
