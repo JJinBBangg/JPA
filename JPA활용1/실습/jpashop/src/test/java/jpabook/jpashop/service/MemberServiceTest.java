@@ -4,7 +4,7 @@ import jakarta.persistence.EntityManager;
 import jpabook.jpashop.entity.Member;
 import jpabook.jpashop.exception.DuplicateMember;
 import jpabook.jpashop.repository.MemberRepository;
-import jpabook.jpashop.request.CreateMember;
+import jpabook.jpashop.request.MemberForm;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -38,15 +38,15 @@ class MemberServiceTest {
     @Rollback(value = false)
     void test() {
         //given
-        CreateMember createMember = CreateMember.builder()
+        MemberForm memberForm = MemberForm.builder()
                 .name("member1")
                 .city("진주")
                 .street("사들로")
-                .zipCode("157")
+                .zipcode("157")
                 .build();
 
         //when
-        Long savedMemberId = memberService.join(createMember);
+        Long savedMemberId = memberService.join(memberForm);
         Member findMember = memberService.findOne(savedMemberId);
 
         //then
@@ -61,21 +61,21 @@ class MemberServiceTest {
     @Rollback(value = false)
     void test2() throws Exception {
         //given
-        CreateMember member1 = CreateMember.builder()
+        MemberForm member1 = MemberForm.builder()
                 .name("member1")
                 .city("진주")
                 .street("사들로")
-                .zipCode("157")
+                .zipcode("157")
                 .build();
         Long saveMemberId = memberService.join(member1);
 
         //when
         //중복되지 않는 member name으로 가입 시 정상적으로 저장되는지 검증
-        CreateMember member2 = CreateMember.builder()
+        MemberForm member2 = MemberForm.builder()
                 .name("member12")
                 .city("서울")
                 .street("사들로")
-                .zipCode("157")
+                .zipcode("157")
                 .build();
         Long createdMemberId = memberService.join(member2);
 
@@ -91,21 +91,21 @@ class MemberServiceTest {
     @DisplayName("중복 MEBER 검증에 잘못된 값을 입력하면 오류발생")
     void test3() throws Exception {
         //given
-        CreateMember member1 = CreateMember.builder()
+        MemberForm member1 = MemberForm.builder()
                 .name("member1")
                 .city("진주")
                 .street("사들로")
-                .zipCode("157")
+                .zipcode("157")
                 .build();
         memberService.join(member1);
 
         //when
         //중복되는 name 값으로 가입 시 오류발생(IllegalStateException)
-        CreateMember member2 = CreateMember.builder()
+        MemberForm member2 = MemberForm.builder()
                 .name("member1")
                 .city("서울")
                 .street("사들로")
-                .zipCode("157")
+                .zipcode("157")
                 .build();
         //then
         // 예외 발생 시 유의할 점 @Rollback(false) 설정 시 해당 exception 발생 시 오류발생할 수 있음

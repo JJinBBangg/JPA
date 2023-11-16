@@ -265,7 +265,7 @@ class OrderServiceTest {
         Address address = Address.builder()
                 .city("진주")
                 .street("사들로")
-                .zipCode("157")
+                .zipcode("157")
                 .build();
 
         Member member = Member.builder()

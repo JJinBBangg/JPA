@@ -87,7 +87,7 @@ public class OrderService {
         return Address.builder()
                 .city(createOrder.getCity())
                 .street(createOrder.getStreet())
-                .zipCode(createOrder.getZipCode())
+                .zipcode(createOrder.getZipCode())
                 .build();
     }
 }

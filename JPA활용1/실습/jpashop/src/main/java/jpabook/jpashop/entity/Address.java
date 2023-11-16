@@ -1,7 +1,6 @@
 package jpabook.jpashop.entity;
 
 import jakarta.persistence.Embeddable;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,13 +15,13 @@ import static lombok.AccessLevel.*;
 public class Address {
     private String city;
     private String street;
-    private String zipCode;
+    private String zipcode;
 
     @Builder
-    private Address(String city, String street, String zipCode) {
+    private Address(String city, String street, String zipcode) {
         this.city = city;
         this.street = street;
-        this.zipCode = zipCode;
+        this.zipcode = zipcode;
     }
 
     @Override
@@ -32,12 +31,12 @@ public class Address {
         Address address = (Address) o;
         return Objects.equals(getCity(), address.getCity())
                 && Objects.equals(getStreet(), address.getStreet())
-                && Objects.equals(getZipCode(), address.getZipCode());
+                && Objects.equals(getZipcode(), address.getZipcode());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getCity(), getStreet(), getZipCode());
+        return Objects.hash(getCity(), getStreet(), getZipcode());
     }
 
     @Override
@@ -45,7 +44,7 @@ public class Address {
         return "Address{" +
                 "city='" + city + '\'' +
                 ", street='" + street + '\'' +
-                ", zipCode='" + zipCode + '\'' +
+                ", zipCode='" + zipcode + '\'' +
                 '}';
     }
 }
