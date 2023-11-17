@@ -33,7 +33,7 @@ public class Member {
     private Member(String name, Address address, List<Order> orders) {
         this.name = name;
         this.address = address;
-        this.orders = orders;
+        this.orders = (orders == null ? new ArrayList<>() : orders);
     }
 
     public void updateMember(UpdateMember updateMember){
