@@ -54,6 +54,9 @@ public class OrderService {
 
         return order.getId();
     }
+    public List<Order> findAll(){
+        return orderRepository.findAll();
+    }
 
 
     // 취소 로직
