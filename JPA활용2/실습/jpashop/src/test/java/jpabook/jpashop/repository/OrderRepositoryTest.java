@@ -40,7 +40,7 @@ class OrderRepositoryTest {
         Address address = Address.builder()
                 .city("진주")
                 .street("사들로")
-                .zipCode("157")
+                .zipcode("157")
                 .build();
 
         Member member1 = Member.builder()
@@ -95,7 +95,6 @@ class OrderRepositoryTest {
                 .member(findMember)
                 .orderItems(orderItemList)
                 .address(findMember.getAddress())
-//                .status(OrderStatus.ORDER) // null로 들어가면 기본값을 order로 설정
                 .build();
 
 
@@ -112,7 +111,7 @@ class OrderRepositoryTest {
         Address address = Address.builder()
                 .city("진주")
                 .street("사들로")
-                .zipCode("157")
+                .zipcode("157")
                 .build();
 
         Member member1 = Member.builder()
@@ -124,7 +123,7 @@ class OrderRepositoryTest {
         Address address1 = Address.builder()
                 .city("서울")
                 .street("마포구 고산18길")
-                .zipCode("10-4")
+                .zipcode("10-4")
                 .build();
 
         Member member2 = Member.builder()
