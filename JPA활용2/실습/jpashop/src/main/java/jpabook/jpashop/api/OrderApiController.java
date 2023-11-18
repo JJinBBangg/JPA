@@ -1,6 +1,7 @@
 package jpabook.jpashop.api;
 
 import jpabook.jpashop.entity.Order;
+import jpabook.jpashop.request.CreateOrder;
 import jpabook.jpashop.service.OrderService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,8 +29,8 @@ public class OrderApiController {
         return new Result(orderService.findAll());
     }
     @PostMapping("/orders")
-    public void add(){
-
+    public void add(CreateOrder createOrder){
+        orderService.join(createOrder);
     }
 
     @AllArgsConstructor
