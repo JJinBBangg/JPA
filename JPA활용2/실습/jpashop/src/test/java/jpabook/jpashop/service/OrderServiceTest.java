@@ -13,6 +13,7 @@ import jpabook.jpashop.repository.MemberRepository;
 import jpabook.jpashop.repository.OrderRepository;
 import jpabook.jpashop.request.CreateOrder;
 import jpabook.jpashop.request.OrderItem;
+import jpabook.jpashop.response.OrderResponse;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -235,8 +236,7 @@ class OrderServiceTest {
         em.flush();
         em.clear();
         //when
-        List<Order> orders = orderService.findOrder("member1");
-        Assertions.assertThat(orders.size()).isEqualTo(2);
+        OrderResponse orders = orderService.findOrder("member1");
     }
 
     private void createItem() {

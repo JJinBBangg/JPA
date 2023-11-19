@@ -2,15 +2,13 @@ package jpabook.jpashop.api;
 
 import jpabook.jpashop.entity.Order;
 import jpabook.jpashop.request.CreateOrder;
+import jpabook.jpashop.response.OrderResponse;
 import jpabook.jpashop.service.OrderService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.weaver.ast.Or;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -27,6 +25,10 @@ public class OrderApiController {
     @GetMapping("/orders")
     public Result getOrders(){
         return new Result(orderService.findAll());
+    }
+    @GetMapping("/orders/{id}")
+    public OrderResponse getOrder(@PathVariable Long id, String userName){
+        return orderService.findOrder(userName);
     }
     @PostMapping("/orders")
     public void add(CreateOrder createOrder){

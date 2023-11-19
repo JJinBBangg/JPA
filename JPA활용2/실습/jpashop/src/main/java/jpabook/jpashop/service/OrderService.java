@@ -6,6 +6,7 @@ import jpabook.jpashop.repository.ItemRepository;
 import jpabook.jpashop.repository.MemberRepository;
 import jpabook.jpashop.repository.OrderRepository;
 import jpabook.jpashop.request.CreateOrder;
+import jpabook.jpashop.response.OrderResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -66,9 +67,9 @@ public class OrderService {
     }
     // 검색 로직
     @Transactional(readOnly = true)
-    public List<Order> findOrder(String username){
+    public OrderResponse findOrder(String username){
         Member byNameWithOrder = memberRepository.findByNameWithOrder(username);
-        return byNameWithOrder.getOrders();
+        return OrderResponse.builder().build();
     }
 
     ///////////////////////////class 내부 메소드///////////////////////////
