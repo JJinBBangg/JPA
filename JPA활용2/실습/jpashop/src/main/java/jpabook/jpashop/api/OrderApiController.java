@@ -7,7 +7,7 @@ import jpabook.jpashop.service.OrderService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.aspectj.weaver.ast.Or;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,6 +15,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
+@Slf4j
 public class OrderApiController {
 
     private final OrderService orderService;
@@ -23,13 +24,16 @@ public class OrderApiController {
     // Order -> Member;
     // Order -> Delivery
     @GetMapping("/orders")
-    public Result getOrders(){
-        return new Result(orderService.findAll());
+    public List<OrderResponse> getOrders(){
+        log.info(">>>>>>>>>GET : /orders");
+       return orderService.findAll();
     }
+
     @GetMapping("/orders/{id}")
-    public OrderResponse getOrder(@PathVariable Long id, String userName){
-        return orderService.findOrder(userName);
+    public List<OrderResponse> getOrder(@PathVariable Long id, String name){
+        return orderService.findOrderByName(name);
     }
+
     @PostMapping("/orders")
     public void add(CreateOrder createOrder){
         orderService.join(createOrder);

@@ -3,10 +3,12 @@ package jpabook.jpashop.entity.item;
 import jakarta.persistence.Entity;
 import jpabook.jpashop.entity.CategoryItem;
 import lombok.Builder;
+import lombok.Getter;
 
 import java.util.List;
 
 @Entity
+@Getter
 public class Movie extends Item{
     private String director;
     private String actor;

@@ -39,12 +39,4 @@ public class Address {
         return Objects.hash(getCity(), getStreet(), getZipcode());
     }
 
-    @Override
-    public String toString() {
-        return "Address{" +
-                "city='" + city + '\'' +
-                ", street='" + street + '\'' +
-                ", zipCode='" + zipcode + '\'' +
-                '}';
-    }
 }

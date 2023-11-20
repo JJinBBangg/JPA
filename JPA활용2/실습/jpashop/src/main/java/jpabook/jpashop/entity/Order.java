@@ -1,9 +1,7 @@
 package jpabook.jpashop.entity;
 
 import jakarta.persistence.*;
-import jpabook.jpashop.entity.item.Item;
 import jpabook.jpashop.exception.AlreadyDeliveryException;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,9 +9,10 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
-import static lombok.AccessLevel.*;
+import static jakarta.persistence.CascadeType.ALL;
+import static jakarta.persistence.FetchType.LAZY;
+import static lombok.AccessLevel.PROTECTED;
 
 @Entity
 @Table(name = "ORDERS")
@@ -25,16 +24,14 @@ public class Order {
     @Column(name = "ORDER_ID")
     private Long id;
 
-    private String orderNumber;
-
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "MEMBER_ID")
     private Member member;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "order", cascade = ALL)
     private List<OrderItem> orderItems = new ArrayList<>();
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(fetch = LAZY, cascade = ALL)
     @JoinColumn(name = "DELIVERY_ID")
     private Delivery delivery;
 
@@ -54,7 +51,6 @@ public class Order {
     // CascadeType.All 에 유의해서 사용해야함(delivery 와 orderItems 는 최초 입력되는 값이 바로 persist됨
     @Builder
     private Order(Member member, List<OrderItem> orderItems, Address address, OrderStatus status) {
-        this.orderNumber = UUID.randomUUID().toString();
         this.member = member;
         // 주소값이 입력없으면 member 기존주소값을 사용하고 입력되는 주소값이 있으면 새로운 주소사용
         this.delivery = (address == null ? Delivery.builder()
@@ -99,7 +95,7 @@ public class Order {
         }
     }
 
-    // 내부에서 사용하는 method를 통해서만 수정가능하도록 private changeStatus 메서드 생성
+    // 내부에서 사용하는 method 를 통해서만 수정가능하도록 private changeStatus 메서드 생성
     private void changeStatus(OrderStatus status) {
         this.status = status;
     }
@@ -113,5 +109,4 @@ public class Order {
                 .sum();
     }
     //
-
 }

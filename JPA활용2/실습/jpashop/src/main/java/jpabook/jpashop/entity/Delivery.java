@@ -1,7 +1,7 @@
 package jpabook.jpashop.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,8 +27,7 @@ public class Delivery {
     private DeliveryStatus status;
 
     @Builder
-    private Delivery( Order order, Address address, DeliveryStatus status) {
-        this.order = order;
+    private Delivery(Address address, DeliveryStatus status) {
         this.address = address;
         this.status = (status == null ? DeliveryStatus.READY : status);
     }

@@ -1,17 +1,11 @@
 package jpabook.jpashop.repository;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jpabook.jpashop.entity.Member;
 import jpabook.jpashop.entity.Order;
-import jpabook.jpashop.entity.OrderStatus;
-import jpabook.jpashop.entity.item.Item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-import javax.swing.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -29,7 +23,8 @@ public class OrderRepository {
     }
 
     public List<Order> findAll() {
-        return em.createQuery("select o from Order o", Order.class).getResultList();
+        return em.createQuery("select o from Order o", Order.class)
+                .getResultList();
     }
 
 //    public List<Order> findByStatus(OrderStatus status){

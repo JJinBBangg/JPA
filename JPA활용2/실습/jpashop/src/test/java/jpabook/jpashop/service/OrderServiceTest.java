@@ -236,7 +236,7 @@ class OrderServiceTest {
         em.flush();
         em.clear();
         //when
-        OrderResponse orders = orderService.findOrder("member1");
+        List<OrderResponse> orders = orderService.findOrderByName("member1");
     }
 
     private void createItem() {

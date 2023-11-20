@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jpabook.jpashop.entity.CategoryItem;
 import jpabook.jpashop.exception.NotEnoughStockException;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -16,6 +17,7 @@ import static lombok.AccessLevel.*;
 @Entity
 @Inheritance(strategy = SINGLE_TABLE)
 @Getter
+@AllArgsConstructor(access = PROTECTED)
 @NoArgsConstructor(access = PROTECTED)
 public abstract class Item {
     @Id @GeneratedValue

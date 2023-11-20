@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import jpabook.jpashop.entity.Member;
 import jpabook.jpashop.entity.Order;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -12,6 +13,8 @@ import java.util.List;
 @Repository
 @RequiredArgsConstructor
 public class MemberRepository{
+
+
 
     private final EntityManager em;
 
