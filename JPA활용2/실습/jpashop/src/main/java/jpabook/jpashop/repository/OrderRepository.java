@@ -2,14 +2,12 @@ package jpabook.jpashop.repository;
 
 import jakarta.persistence.EntityManager;
 import jpabook.jpashop.entity.Order;
-import jpabook.jpashop.response.OrderItemResponse;
 import jpabook.jpashop.response.OrderResponse;
 import jpabook.jpashop.response.OrderResponseV1;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -91,14 +89,7 @@ public class OrderRepository {
     }
 
     private List<OrderResponseV1> findOrderItems(Long id) {
-        this.orderItemResponse = orderItems == null ? null : orderItems.stream()
-                .map(orderItem -> OrderItemResponse.builder()
-                        .id(orderItem.getId())
-                        .count(orderItem.getCount())
-                        .orderPrice(orderItem.getOrderPrice())
-                        .item(orderItem.getItem()) // 사용하면 가져오고 사용하지 않으면 가져오지 않음(쿼리)
-                        .build())
-                .collect(Collectors.toList());;
+
         return null;
     }
 

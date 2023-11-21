@@ -77,10 +77,12 @@ N+1 -> 1+N (연결된 테이블의 컬럼 수가 늘면 늘면 1 + N + N 의 문
 5. XXToOne 관계에서 문제점 해결  => fetch join사용하여 쿼리를 1번으로 단축한다
      XXToMany 관계에서 문제점 해결 => 
 	페이징이 필요없고 1:N 관계 테이블이 1개만 있을 경우 : fetch join 사용
-	페이징이 필요할 경우 : FetchType을 Lazy 설정하고 hibernate.default_batch_fetch_size 설정 
-
+	페이징이 필요할 경우 : FetchType을 Lazy로 설정하고 
+				글로벌 설정 : hibernate.default_batch_fetch_size 설정 
+				개별 설정 : @BatchSize(@XXToMany는 컬럼, 이외에는 Entity class에 설정)
 유의할 점 상황에 따라 사용해야하는데 data양이 적은경우 fetch join을 사용하나 많은경우 fetch size설정
-위 처럼 하였으나 성능문제가 있는것은 DTO를 사용해서 JPQL에서 바로 DTO로 받아서 사용 
+위 처럼 하였으나 Entity를 가져오는 것에서 불필요한 데이터로인해  성능문제가 있는 경우에는 
+JPQL에서 바로 DTO로 받아서 사용 
 
 api 개발 시 발생하는 문제점 실습
 1. 조회용 샘플 데이터 입력
