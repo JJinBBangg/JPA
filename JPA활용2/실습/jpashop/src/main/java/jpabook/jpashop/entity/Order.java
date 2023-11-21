@@ -5,6 +5,7 @@ import jpabook.jpashop.exception.AlreadyDeliveryException;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -54,12 +55,12 @@ public class Order {
         this.member = member;
         // 주소값이 입력없으면 member 기존주소값을 사용하고 입력되는 주소값이 있으면 새로운 주소사용
         this.delivery = (address == null ? Delivery.builder()
-                                            .address(member.getAddress())
-                                            .build()
-                                            :
-                                            Delivery.builder()
-                                                    .address(address)
-                                                    .build());
+                .address(member.getAddress())
+                .build()
+                :
+                Delivery.builder()
+                        .address(address)
+                        .build());
         this.orderDate = LocalDateTime.now();
         // status 가 입력되지않으면서 최초 builder 사용 시 기본값을 ORDER로 설정
         this.status = (status == null ? OrderStatus.ORDER : status);
@@ -102,7 +103,7 @@ public class Order {
 
     // === 조회 로직 ===
     // 전체 주문 가격 조회
-    public int getTotalPrice(){
+    public int getTotalPrice() {
         List<OrderItem> orderItems = this.orderItems;
         return orderItems.stream()
                 .mapToInt(OrderItem::getTotalPrice)

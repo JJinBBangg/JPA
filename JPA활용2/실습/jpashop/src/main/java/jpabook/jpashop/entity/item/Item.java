@@ -16,6 +16,7 @@ import static lombok.AccessLevel.*;
 
 @Entity
 @Inheritance(strategy = SINGLE_TABLE)
+@DiscriminatorColumn(name = "dtype")
 @Getter
 @AllArgsConstructor(access = PROTECTED)
 @NoArgsConstructor(access = PROTECTED)
@@ -25,6 +26,8 @@ public abstract class Item {
     private String name;
     private int price;
     private int stockQuantity;
+    @Column(name = "dtype", insertable = false, updatable = false)
+    private String dtype;
 
     @OneToMany(mappedBy = "item")
     private List<CategoryItem> categories = new ArrayList<>();

@@ -4,6 +4,7 @@ import jpabook.jpashop.entity.Delivery;
 import jpabook.jpashop.entity.Member;
 import jpabook.jpashop.entity.OrderItem;
 import jpabook.jpashop.entity.OrderStatus;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

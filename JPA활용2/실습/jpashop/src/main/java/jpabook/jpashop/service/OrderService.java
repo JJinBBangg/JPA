@@ -8,6 +8,7 @@ import jpabook.jpashop.repository.OrderRepository;
 import jpabook.jpashop.request.CreateOrder;
 import jpabook.jpashop.response.OrderItemResponse;
 import jpabook.jpashop.response.OrderResponse;
+import jpabook.jpashop.response.OrderResponseV1;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -56,6 +57,25 @@ public class OrderService {
 
         return order.getId();
     }
+
+    @Transactional(readOnly = true)
+    public List<OrderResponse> findAllWithDeliveryAndMember(){
+        List<Order> findOrder = orderRepository.findAllWithDeliveryAndMember();
+        List<OrderResponse> orderResponses = findOrder
+                .stream()
+                .map(order -> OrderResponse.builder()
+                        .id(order.getId())
+                        .member(order.getMember())// 사용하면 쿼리 날라가고 안하면 안날라감 LAZY
+                        .orderDate(order.getOrderDate())
+                        .orderItems(order.getOrderItems()) // 사용하면 쿼리 날라가고 안하면 안날라감 LAZY
+                        .delivery(order.getDelivery()) // 사용하면 쿼리 날라가고 안하면 안날라감 LAZY // 왜 2번 쿼리가 실행되는지 모르겠음.
+                        .status(order.getStatus())
+                        .build())
+                .collect(Collectors.toList());
+        return orderResponses;
+    }
+
+
 
     @Transactional(readOnly = true)
     public List<OrderResponse> findAll(){
@@ -123,6 +143,9 @@ public class OrderService {
     }
 
 
+    public List<OrderResponseV1> findAllWithDeliveryAndMemberV2() {
+        return orderRepository.findAllWithDeliveryAndMemberV2();
+    }
 }
 // 적절하지 않은 코드
 // 아래처럼 작성 시 build 할 때 접근한 각 객체의 모든 데이터를 로딩하는 쿼리문이 발생함
