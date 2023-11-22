@@ -1,0 +1,92 @@
+1.학습 내용
+
+OneToOne 관계에서 fetchType을 LAZY로 설정하더라도 n+1문제가 발생할 수 있음
+해결방안 추가로 학습필요
+
+N+1 -> 1+N (연결된 테이블의 컬럼 수가 늘면 늘면 1 + N + N 의 문제가 발생할 수 있음)
+별도의 쿼리는 분리하되 1건 조회 시 연관된 것만 정확하게 가져오는 쿼리튜닝이 필요함
+
+    public List<OrderResponseV1> findAllWithDeliveryAndMemberV2() {
+        return em.createQuery(
+                // 쿼리문에 바로 DTO 를 사용하는경우
+                // builder 사용하도 상관없음
+                // setter 없어도 상관없음
+                // 기본생성자 scope, 없어도 상관없음
+                // AllArgsConstructor 의 파라미터 타입을 기준 필드 타입기준아님
+                // 가져온 table 을 객체 타입에 맞춰서 내부 내용도 사용가능
+                // 필요한 필드값만 컬럼의 값으로 바로 뽑아올 수 있음 type 만 맞으면 됨
+                "select new jpabook.jpashop.response.OrderResponseV1(" +
+                        "    o.id, " +
+                        "    m , " +
+                        "    o.orderDate, " +
+                        "    o.status, " +
+                        "    d ) " +
+                        "from Order o " +
+                        "join o.member m " +
+                        "join o.delivery d ",
+                OrderResponseV1.class
+        ).getResultList();
+    }
+
+    @GetMapping("/orders")
+    public List<OrderResponseV1> getOrders(){
+        log.info(">>>>>>>>>GET : /orders");
+//       return orderService.findAll(); //v2 DTO 로 불러왔지만 각각의 연결 테이블을 1 + N + N 쿼리 발생
+//       return orderService.findAllWithDeliveryAndMember(); // v3 fetch join 을 사용하여 쿼리 1번으로 조회
+//       return orderService.findAllWithDeliveryAndMemberV2(); // v4 DTO 를 쿼리에 바로 반환받아 필요한 컬럼만 조회
+        // v3(엔티티의 모든컬럼을가져오게됨) 
+	//     vs 
+	//        v4(필요한 컬럼만 골라서 사용)
+        // v3는 가져온 값을 다른곳에서도 유연하게 필요한 데이터만 뽑아서 사용가능
+        // v4는 필요한 값을 가져오는 곳에만 사용하기때문에 유연성 은 떨어지나 기능은 향상됨
+        // 테이블의 컬럼수가 많고 필요한 데이터가 아주 일부일경우 v4로 성능향상을 기대할 수 있고
+        // 테이블의 컬럼수가 적고 대부분의 컬럼을 동시에 사용할 일이 많은경우 v3가 유연하게 대처가능함
+	// 추가로 v3인 경우 entity의 영속성이 유지되어 entity의 변경로직 등에 사용이 가능함
+	// v4는 조회와 동시에 DTO에 반환받았기 때문에 영속성 컨텍스트에서 관리되지 않는 객체임
+	// v4는 API로 개발하는경우 API스팩이 Repository에 직접 관여하기때문에 유연성이 매우 부족함(수정이 필요할 시 API 스팩도 같이 바뀌는 경우가 생길 수 있음)
+	// 물리적으로는 계층을 생성하여 반환받았지만 논리적으로는 Entity계층이 깨져버린 경우이기 때문에 
+	// 실무에서는 정말로 조회할 데이터 양이 많고 불필요한 컬럼을 걸뤄내야하는 성능이슈가 있는 곳에서만 사용하는 것이 권장됨
+    }
+
+    public List<Order> findAllWithDeliveryAndMember() {
+        return em.createQuery(
+                // distinct 를 사용하면 from 절의 order 를 기준으로 식별자 값이 같은 것은
+                // 어플리케이션 레벨에서 중복을 제거하고 객체에 넣어준다.
+                // 하지만 distinct 를 사용하더라도 DB의 실제 쿼리결과는 1:N 관계로 인해서
+                // 1 * N개의 로우(row)가 조회되기 때문에 OneToMany 관계에서는 페이징 처리를 사용하면안됨
+                 "select distinct o from Order o " +
+                        "join fetch o.member m " +
+                        "join fetch o.delivery d " +
+                        "join fetch o.orderItems oi " +
+                        "join fetch oi.item i", Order.class)
+//                .setFirstResult(1)
+//                .setMaxResults(100)
+                .getResultList();
+    }
+
+
+
+성능에 관여할 수 있는 요소 정리(JPA 쿼리 튜닝)
+1. 테이블 생성 전략 - 조인, 단일테이블, 구현클레스마다구현
+2. 기본값 : @XXXToOne(fetch = FetchType.EAGER), @XXXToMany(fetch = FetchType.LAZY) 
+   -LAZY(지연로딩) , EAGER(즉시로딩) : LAZY사용을 권장하며 
+3. 양방향 연관관계 설정(로직의 연관성을 분석하여 관계의 주인설정) - 착안사항 연관관계의 설정이 잘못되어 불필요한 쿼리가 실행되는경우 성능저하
+4. 2번과 관련되어있으나 jpql사용할 때 1차캐시에 없는데이터 사용하는경우 사용할 때마다 가져오는 것이 성능에 관련 있을 수 있으니
+    필요한 경우 JPQL의 join fetch 기능을 사용하여 한번에 영속성 컨텍스트에 값을 저장하고 사용(EAGER사용은 지양), 엔티티 그래프 기능 사용
+
+5. XXToOne 관계에서 문제점 해결  => fetch join사용하여 쿼리를 1번으로 단축한다
+     XXToMany 관계에서 문제점 해결 => 
+	페이징이 필요없고 1:N 관계 테이블이 1개만 있을 경우 : fetch join 사용
+	페이징이 필요할 경우 : FetchType을 Lazy로 설정하고 
+				글로벌 설정 : hibernate.default_batch_fetch_size 설정 
+				개별 설정 : @BatchSize(@XXToMany는 컬럼, 이외에는 Entity class에 설정)
+유의할 점 상황에 따라 사용해야하는데 data양이 적은경우 fetch join을 사용하나 많은경우 fetch size설정
+위 처럼 하였으나 Entity를 가져오는 것에서 불필요한 데이터로인해  성능문제가 있는 경우에는 
+JPQL에서 바로 DTO로 받아서 사용 
+
+api 개발 시 발생하는 문제점 실습
+1. 조회용 샘플 데이터 입력
+2. 지연로딩과 조회성능 최적화
+3. 컬렉션 조회 최적화
+4. 페이징과 한계 돌파
+5. OSIV와 성능 최적화 

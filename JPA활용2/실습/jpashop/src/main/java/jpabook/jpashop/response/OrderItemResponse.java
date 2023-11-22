@@ -10,16 +10,16 @@ import lombok.Getter;
 @Getter
 public class OrderItemResponse {
     private Long id;
-    private String name;
+    private Long orderId;
     private int orderPrice;
     private int count;
     private ItemResponse itemResponse;
 
 
     @Builder
-    public OrderItemResponse(Long id, String name, int orderPrice, int count, Item item) {
+    public OrderItemResponse(Long id, Long orderId, int orderPrice, int count, Item item) {
         this.id = id;
-        this.name = name;
+        this.orderId = orderId;
         this.orderPrice = orderPrice;
         this.count = count;
         this.itemResponse = item == null ? null : ItemResponse.builder()

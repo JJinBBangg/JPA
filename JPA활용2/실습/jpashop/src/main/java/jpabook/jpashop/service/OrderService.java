@@ -5,6 +5,7 @@ import jpabook.jpashop.entity.item.Item;
 import jpabook.jpashop.repository.ItemRepository;
 import jpabook.jpashop.repository.MemberRepository;
 import jpabook.jpashop.repository.OrderRepository;
+import jpabook.jpashop.repository.order.query_repository.OrderQueryRepository;
 import jpabook.jpashop.request.CreateOrder;
 import jpabook.jpashop.response.OrderItemResponse;
 import jpabook.jpashop.response.OrderResponse;
@@ -26,6 +27,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final MemberRepository memberRepository;
     private final ItemRepository itemRepository;
+    private final OrderQueryRepository orderQueryRepository;
 
 
     // 주문 로직
@@ -76,6 +78,11 @@ public class OrderService {
     }
 
 
+    @Transactional(readOnly = true)
+    public List<OrderResponse> findAllByQeruy(){
+        orderQueryRepository.findAll();
+        }
+    }
 
     @Transactional(readOnly = true)
     public List<OrderResponse> findAll(){
