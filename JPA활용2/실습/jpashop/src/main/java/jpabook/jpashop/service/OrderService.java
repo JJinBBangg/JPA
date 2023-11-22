@@ -69,7 +69,7 @@ public class OrderService {
                         .id(order.getId())
                         .member(order.getMember())// 사용하면 쿼리 날라가고 안하면 안날라감 LAZY
                         .orderDate(order.getOrderDate())
-                        .orderItems(order.getOrderItems()) // 사용하면 쿼리 날라가고 안하면 안날라감 LAZY
+//                        .orderItems(order.getOrderItems()) // 사용하면 쿼리 날라가고 안하면 안날라감 LAZY
                         .delivery(order.getDelivery()) // 사용하면 쿼리 날라가고 안하면 안날라감 LAZY // 왜 2번 쿼리가 실행되는지 모르겠음.
                         .status(order.getStatus())
                         .build())
@@ -79,9 +79,9 @@ public class OrderService {
 
 
     @Transactional(readOnly = true)
-    public List<OrderResponse> findAllByQeruy(){
-        orderQueryRepository.findAll();
-        }
+    public List<OrderResponse> find(){
+        List<OrderResponse> all = orderQueryRepository.findAll();
+        return all;
     }
 
     @Transactional(readOnly = true)
@@ -92,7 +92,7 @@ public class OrderService {
                         .id(order.getId())
                         .member(order.getMember())// 사용하면 쿼리 날라가고 안하면 안날라감 LAZY
                         .orderDate(order.getOrderDate())
-                        .orderItems(order.getOrderItems()) // 사용하면 쿼리 날라가고 안하면 안날라감 LAZY
+//                        .orderItems(order.getOrderItems()) // 사용하면 쿼리 날라가고 안하면 안날라감 LAZY
                         .delivery(order.getDelivery()) // 사용하면 쿼리 날라가고 안하면 안날라감 LAZY // 왜 2번 쿼리가 실행되는지 모르겠음.
                         .status(order.getStatus())
                         .build())
@@ -116,7 +116,7 @@ public class OrderService {
                         .member(order.getMember()) // 사용하면 쿼리 날라가고 안하면 안날라감 LAZY
                         .status(order.getStatus())
                         .orderDate(order.getOrderDate())
-                        .orderItems(order.getOrderItems()) // 사용하면 쿼리 날라가고 안하면 안날라감 LAZY
+//                        .orderItems(order.getOrderItems()) // 사용하면 쿼리 날라가고 안하면 안날라감 LAZY
                         .delivery(order.getDelivery()) // 사용하면 쿼리 날라가고 안하면 안날라감 LAZY
                         .build())
                 .collect(Collectors.toList());

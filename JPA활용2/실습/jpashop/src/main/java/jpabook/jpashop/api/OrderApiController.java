@@ -37,8 +37,8 @@ public class OrderApiController {
         // 테이블의 컬럼수가 적고 대부분의 컬럼을 동시에 사용할 일이 많은경우 v3가 유연하게 대처가능함
 //        return orderService.findAllWithDeliveryAndMemberV2(); // v4 DTO 를 쿼리에 바로 반환받아 필요한 컬럼만 조회
         // XXXToMany 문제해결
-        return orderService.findAllWithDeliveryAndMember(); // v3 fetch join 을 사용하여 쿼리 1번으로 조회
-
+//        return orderService.findAllWithDeliveryAndMember(); // v3 fetch join 을 사용하여 쿼리 1번으로 조회
+        return orderService.find();
     }
 
     @GetMapping("/orders/{id}")

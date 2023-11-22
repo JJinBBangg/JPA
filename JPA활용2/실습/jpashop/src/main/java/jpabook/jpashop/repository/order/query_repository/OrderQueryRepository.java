@@ -17,7 +17,7 @@ public class OrderQueryRepository {
     private final EntityManager em;
 
 
-    public void findAll() {
+    public List<OrderResponse> findAll() {
         // delivery 와 member 를 Dto 로 조회( XXToOne 관계 )
         List<OrderResponse> orders = getOrders();  // 쿼리 1번
 
@@ -33,6 +33,7 @@ public class OrderQueryRepository {
         // 각 주문의 ID 값을 키로 orderItem 을 주입시켜줌
         orders.stream().forEach(order -> order.addOrderItems(orderItemListMap.get(order.getId())));
 
+        return orders;
     }
 
     private List<OrderItemResponse> getOrderItems(List<Long> orderIdList) {
