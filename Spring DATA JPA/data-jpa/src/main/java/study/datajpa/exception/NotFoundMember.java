@@ -8,11 +8,8 @@ public class NotFoundMember extends jpaException{
         super(MESSAGE);
     }
 
-    public NotFoundMember(String message) {
-        super(message);
-    }
-
-    public NotFoundMember(String message, Throwable cause) {
-        super(message, cause);
+    @Override
+    public int getStatusCode() {
+        return 400;
     }
 }

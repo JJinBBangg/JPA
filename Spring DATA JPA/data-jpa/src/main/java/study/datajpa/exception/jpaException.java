@@ -21,4 +21,6 @@ public abstract class jpaException extends RuntimeException {
     protected jpaException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
+
+    public abstract int getStatusCode();
 }
