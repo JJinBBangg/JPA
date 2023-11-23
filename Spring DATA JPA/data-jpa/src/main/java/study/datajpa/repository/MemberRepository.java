@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import study.datajpa.entity.Member;
@@ -61,4 +62,13 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     //카운트 쿼리 분리(성능 향상)
             countQuery = "select count(m) from Member m where m.age =:age")
     Page<Member> findByPage3(@Param("age") int age, Pageable pageable);
+
+    //수정쿼리에서는 Modifying 붙여줘야함
+    // em.executeQuery()
+    // 벌크 연산을 하게되면 db 에만 반영되고 영속성 컨텍스트에는 반영되지않음
+    // 그래서 clear 를 자동으로 하게만들어서 이후 조회하는 정보는 모두 db 에서 가지고 오게 만듦
+    @Modifying(clearAutomatically = true)
+    @Query("update Member m set m.age = m.age+1 where m.age >= :age")
+    int bulkAgePlus(@Param("age")int age);
+
 }

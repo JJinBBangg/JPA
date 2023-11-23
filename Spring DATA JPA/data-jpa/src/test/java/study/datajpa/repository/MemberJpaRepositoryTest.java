@@ -91,4 +91,35 @@ class MemberJpaRepositoryTest {
         assertThat(members1.get(0)).isEqualTo(findMember2);
     }
 
+    @Test
+    @DisplayName("벌크 수정")
+    void test3(){
+        Member member1 = Member.builder()
+                .name("member1")
+                .age(10)
+                .build();
+
+        Member member2 = Member.builder()
+                .name("member2")
+                .age(20)
+                .build();
+        Member member3 = Member.builder()
+                .name("member3")
+                .age(30)
+                .build();
+        Member member4 = Member.builder()
+                .name("member4")
+                .age(40)
+                .build();
+        em.persist(member1);
+        em.persist(member2);
+        em.persist(member3);
+        em.persist(member4);
+        em.flush();
+        em.clear();
+
+        int resultCount = memberJpaRepository.bulkAgePlus(20);
+
+        assertThat(resultCount).isEqualTo(3);
+    }
 }
