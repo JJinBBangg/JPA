@@ -16,7 +16,7 @@ import java.util.ArrayList;
         name = "Member.findByName",
         query = "select m from Member m where m.name = :name"
 )
-public class Member {
+public class Member extends JpaBaseEntity{
 
     @Id @GeneratedValue
     @Column(name = "member_id")

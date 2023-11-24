@@ -1,5 +1,6 @@
 package study.datajpa.repository;
 
+import jakarta.persistence.LockModeType;
 import jakarta.persistence.QueryHint;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,7 +12,7 @@ import study.datajpa.response.MemberResponse;
 
 import java.util.List;
 
-public interface MemberRepository extends JpaRepository<Member, Long> {
+public interface MemberRepository extends JpaRepository<Member, Long>, MemberRepositoryCustom {
 
     // 사용 시 각 Entity 의 필드명과 동일한 변수값을 지정해야함 
     // username 이라고 지정할 시 member entity 의 필드값이 없다고 오류발생
@@ -83,4 +84,10 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     @QueryHints(@QueryHint(name ="org.hibernate.readOnly", value ="true"))
     Member findQueryHintById(@Param("id") Long id);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Modifying(clearAutomatically = true)
+    @Query("update Member m set m.age = m.age+1 where m.age >= :age")
+    void updateMember(@Param("age") int age);
+
 }

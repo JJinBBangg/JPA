@@ -254,7 +254,11 @@ class MemberRepositoryTest {
         findMember.updateMember(updateMember);
         em.flush();// 변경감지(Dirty Checking)
 
-        //then
+    }
 
+    @Test
+    @DisplayName("RepositoryCustom")
+    void test7(){
+        List<Member> members = memberRepository.findMemberCustom();
     }
 }
