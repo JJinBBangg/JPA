@@ -40,7 +40,7 @@ public class Member {
 
     public void updateMember(UpdateMember updateMember){
         name = updateMember.getName() == null ? name : updateMember.getName();
-        age = Integer.valueOf(updateMember.getAge()) == null ? age : updateMember.getAge();
+        age = updateMember.getAge() == null ? age : updateMember.getAge();
         if(updateMember.getTeam() != null) changeTeam(team);
     }
 

@@ -1,12 +1,10 @@
 package study.datajpa.repository;
 
-import jakarta.persistence.NamedQuery;
+import jakarta.persistence.QueryHint;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import study.datajpa.entity.Member;
 import study.datajpa.response.MemberResponse;
@@ -71,4 +69,18 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query("update Member m set m.age = m.age+1 where m.age >= :age")
     int bulkAgePlus(@Param("age")int age);
 
+    @Query("select m from Member m "/*" +
+            "join fetch m.team t"*/)
+    @EntityGraph(attributePaths = "team")
+    List<Member> findMemberFetchJoinAll();
+
+    @Override
+    @EntityGraph(attributePaths = {"team"})
+    List<Member> findAll();
+
+    @EntityGraph(attributePaths = "team")
+    List<Member> findFetchJoinByName(@Param("name") String name);
+
+    @QueryHints(@QueryHint(name ="org.hibernate.readOnly", value ="true"))
+    Member findQueryHintById(@Param("id") Long id);
 }

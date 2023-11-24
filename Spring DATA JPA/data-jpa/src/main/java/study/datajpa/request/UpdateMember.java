@@ -12,12 +12,12 @@ public class UpdateMember {
 
     private Long id;
     private String name;
-    private int age;
+    private Integer age;
     private Long teamId;
     private Team team;
 
     @Builder
-    public UpdateMember(Long id, String name, int age, Long teamId, Team team) {
+    public UpdateMember(Long id, String name, Integer age, Long teamId, Team team) {
         this.id = id;
         this.name = name;
         this.age = age;

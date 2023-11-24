@@ -14,11 +14,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.entity.Member;
+import study.datajpa.entity.Team;
 import study.datajpa.exception.NotFoundMember;
+import study.datajpa.request.UpdateMember;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -179,5 +179,82 @@ class MemberRepositoryTest {
         int resultCount = memberRepository.bulkAgePlus(20);
 
         assertThat(resultCount).isEqualTo(3);
+    }
+
+    @Test
+    @DisplayName("1+N 문제해결")
+    void test5(){
+        //given
+        Team teamA = Team.builder()
+                .name("TeamA")
+                .build();
+
+        Team teamB = Team.builder()
+                .name("TeamB")
+                .build();
+
+        em.persist(teamA);
+        em.persist(teamB);
+
+        Member member1 = Member.builder()
+                .name("member1")
+                .age(10)
+                .team(teamA)
+                .build();
+
+        Member member2 = Member.builder()
+                .name("member2")
+                .age(20)
+                .team(teamB)
+                .build();
+
+        em.persist(member1);
+        em.persist(member2);
+
+        em.flush();
+        em.clear();
+
+        //when
+        List<Member> members = memberRepository.findAll();
+        
+        //then
+        for (Member member : members) {
+            System.out.println("member.getName() = " + member.getName());
+            System.out.println("member.getTeam().getName() = " + member.getTeam().getName());
+        }
+        em.clear();
+
+        List<Member> findMembers = memberRepository.findMemberFetchJoinAll();
+        for (Member member : findMembers) {
+            System.out.println("member.getName() = " + member.getName());
+            System.out.println("member.getTeam().getName() = " + member.getTeam().getName());
+        }
+        em.clear();
+
+        List<Member> findMember = memberRepository.findAll();
+        for (Member member : findMember) {
+            System.out.println("member.getName() = " + member.getName());
+            System.out.println("member.getTeam().getName() = " + member.getTeam().getName());
+        }
+    }
+
+    @Test
+    @DisplayName("JPA Query Hint")
+    void test6(){
+        //given
+        Member member = Member.builder().name("member1").age(33).build();
+        memberRepository.save(member);
+        em.flush();
+        em.clear();
+
+        //when
+        // findMember 를 가지고오는 순간부터 변경이 되었을 시 변경감지 하기위한 기준객체를 미리 만들어놓음
+        Member findMember = memberRepository.findById(member.getId()).orElseThrow(NotFoundMember::new);
+        UpdateMember updateMember = UpdateMember.builder().name("memberA").build();
+        findMember.updateMember(updateMember);
+        em.flush();// 변경감지(Dirty Checking)
+
+        //then
+
     }
 }

@@ -1,0 +1,151 @@
+1.학습내용
+
+
+SPRING DATA JPA 
+1. jpaRepository
+ 기본제공 메소드 구현체 구동원리 및 분석
+  
+2. 쿼리 메소드
+
+    // 쿼리 메소드 사용 시 각 Entity 의 필드명과 동일한 변수값을 지정해야함 
+    // username 이라고 지정할 시 member entity 의 필드값이 없다고 오류발생
+    // 사용 중 필드명이 수정될 시 어플리케이션 실행 시점에 오류발생
+public interface MemberRepository extends JpaRepository<Member, Long> {
+    public List<Member> findByNameAndAgeGreaterThan(String name, int age);
+}
+    // 각 쿼리 메소드의 from 값은 JpaRepository<Member, Long> : Member Entity 객체 참조
+    // 조회 : find...By, query...By, get...By, read...By
+    // Count : count...By // return long
+    // Exists : exists...By // return boolean
+    // 삭제 : delete...By // return long
+    // DISTINCT : find...DistinctBy
+    // LIMIT : findFirst(#), findTop(#)
+
+3. 네임드 쿼리
+  1) jpaRepository 상속 받아서 사용
+
+public interface MemberRepository extends JpaRepository<Member, Long> {  
+    @Query(name = "Member.findByName") 
+    public List<Member> findByName(@Param("name") String name);
+}
+    // @Query를 주석 처리하여도 메서드 명을 기준으로 namedQuery 우선 검색
+    // 검색기준 jpaRepository<T, ID> T 자리의 Member를 기준으로
+       // entity 내부의Member.findByName 이름의 namedQuery 검색
+    // 검색 했으나 없을 시 쿼리 메소드로 작동한다.
+
+  2) @Repository class 에서 사용
+
+@Repository
+@RequiredArgsConstructor
+public class MemberJpaRepository {
+    public List<Member> findByName(String name){
+        return em.createNamedQuery("Member.findByName", Member.class)
+                .setParameter("name", name)
+                .getResultList();
+    }
+}
+
+참고 entity
+======================================================================
+	@Entity
+	@Getter
+	@NoArgsConstructor(access = AccessLevel.PROTECTED)
+	@NamedQuery(
+        name = "Member.findByName",
+	        query = "select m from Member m where m.name = :name"
+	)
+	public class Member
+======================================================================
+
+jpql 로 작성된 쿼리문의 검색조건 상 필드명 매칭 등은 오타가 있더라도  
+어플리케이션이 실행되고 난 후 사용시점에서 오류가 발생하지만 
+네임드 쿼리의 장점은 어플리케이션의 실행시점에 오류를 발생시키기 때문에 미리 검증할 수 있음 
+
+위에서의 entity에 네임드 쿼리를 작성하여 사용하는 방법은 실무에서 거의 사용하지 않음
+
+ 3) jpaRepository 상속 받은 interface에서 네임드 쿼리 사용
+
+public interface MemberRepository extends JpaRepository<Member, Long> {  
+     @Query("select m from Member m where m.name = :name and m.age > :age")
+    List<Member> findAllBy(@Param("name")String name, @Param("age")int age);
+}
+
+//위 처럼 작성하면 m.name이라는 필드명을 어플리케이션 실행시점에서 검증하여 오류를 발생시킴
+기존처럼 em.createQuery("select m from Member m where m.name = :name and m.age > :age").setParam.....
+이렇게 사용할 경우 m.namee <- 필드명을 오타로 작성하더라도 실제 쿼리문을 사용하기 전까지는 오류가 발생하지않음
+
+위 처럼 작동하는 이유는 네임드 쿼리의 경우 정적쿼리이기 때문에 어플리캐이션 실행 시점에서 파싱하는데 
+이때 필드값을 검증하기 때문
+
+spring data jpa 사용 시 
+	return 타입 
+	T - > entity // 값이없어도 null 반환해줌(data jpa의 별도기능 : 기존 exception을 감싸 오류반환하는 것이 아니라 null로 반환) 
+	List<T> -> List<entity>
+	Optional<T> -> Optional<entity>  // 단일 값을 기대하나 여러 row가 반환될 시 오류발생 
+	Future<T>  
+	ComletableFuture<T> // @Async 비동기로 사용가능
+	Stream<T>
+	Page<T> -> 페이징 쿼리 // stream으로 각 객체를 반환 할 때는 기존 T타입으로 반환됨
+
+
+4. 페이징
+    @Query("select m from Member m where m.age = :age")
+    Page<Member> findByPage(@Param("age") int age, Pageable pageable);
+// List<T> 대신 Page<T> 타입으로 반환받고 Pageable pageable에 페이징 정보를 파라미터로 넘긴다
+
+
+	페이징 정보 
+	PageRequest pageRequest = PageRequest.of(0, 3, Sort.by(Sort.Direction.DESC, "name")); 
+						(현재페이지(0부터 시작), 페이지 사이즈, 정렬조건(넘기지않으면 Sort.unsorted())
+						아래처럼 사용가능 
+						PageRequest.of(pageNumber, pageSize, Sort.Direction.DESC, "name", "age");
+	Pageable 하위의 타입을 파라미터로 넘길 수 있고 
+	기본구현체인 findAll(pageable)로도 사용할 수 있음(return type이 Page<T>로 바뀜)
+
+        	Page<Member> page = memberRepository.findByPage(age, pageRequest);
+
+        List<Member> members = page.getContent();
+
+        page.getTotalPages(); // 총 페이지 수
+        page.getNumber(); // 현재 페이지
+        
+        page.isFirst(); // 첫페이지인가
+        
+        if(page.hasNext()) // 다음페이지가 있는가? 
+            pageRequest.next(); // 다음페이지로 페이징 정보변경 
+        
+        if(page.hasPrevious()) // 전 페이지가 있는가?
+            pageRequest.previous();// 이전페이지로 페이징 정보변경 
+        
+        page.isLast();  // 마지막페이지인가
+
+
+       //검색해야하는 쿼리의 숫자보다 1개 더 가져와서 다음이있는지 확인하여 슬라이스, 더보기 스타일로 컨텐츠 제공
+    @Query("select m from Member m where m.age = :age")
+    Slice<Member> findByPage2(@Param("age") int age, Pageable pageable);
+
+    // 쿼리가 복잡해지면 카운트 쿼리도 복잡해짐
+    @Query(value = "select m from Member m left join m.team t where m.age = :age", 
+    //카운트 쿼리 분리(성능 향상)
+            countQuery = "select count(m.name) from Member m where m.age =:age") 
+    Page<Member> findByPage2(@Param("age") int age, Pageable pageable);
+
+    Page객체가 가장하위객체이기때문에 Page써놓고 slice기능도 사용가능하니 성능상 문제가없다면 Page를 사용하자
+
+<< 실무 팁>>
+정적쿼리인 경우
+간단한 조건검색에서 쿼리 메소드를  사용하고 
+2~3가지 이상 복잡한 조건을 검색해야하는경우 @Query("JPQL") 사용하는 것이 올바름
+
+페이징 하는 쿼리가 복잡해지는 경우 성능향상을 위해 countQuery를 별도로 작성해줄 수 있음
+left(right) outter join 인 경우 기준이 되는 left 테이블의 값을 기준으로 쿼리문 작성
+
+동적 쿼리는 queryDSL사용하는 것이 올바름
+
+
+
+
+
+
+
+
