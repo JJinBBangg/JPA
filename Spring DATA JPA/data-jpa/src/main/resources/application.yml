@@ -13,7 +13,10 @@ spring:
         #        show_sql: true
         format_sql: true
         default_batch_fetch_size: 100 #최적화 옵션
-
+  data:
+    web:
+      default-page-size : 10
+      max-page-size : 30
 logging.level:
   org.hibernate.SQL: debug
 #  org.hibernate.type: trace
