@@ -260,5 +260,6 @@ class MemberRepositoryTest {
     @DisplayName("RepositoryCustom")
     void test7(){
         List<Member> members = memberRepository.findMemberCustom();
+        System.out.println("members = " + members);
     }
 }
