@@ -67,7 +67,64 @@ left(right) outter join 인 경우 기준이 되는 left 테이블의 값을 기
 동적 쿼리는 queryDSL사용하는 것이 올바름
 
 
+Querydsl
 
+ 1) where절 제공 메서드
+member.username.eq("member1") // username = 'member1'
+member.username.ne("member1") //username != 'member1'
+member.username.eq("member1").not() // username != 'member1'
+member.username.isNotNull() //이름이 is not null
+member.age.in(10, 20) // age in (10,20)
+member.age.notIn(10, 20) // age not in (10, 20)
+member.age.between(10,30) //between 10, 30
+member.age.goe(30) // age >= 30
+member.age.gt(30) // age > 30
+member.age.loe(30) // age <= 30
+member.age.lt(30) // age < 30
+
+ 2) 이외 조건 메서드
+member.username.like("member%") //like 검색
+member.username.contains("member") // like ‘%member%’ 검색
+member.username.startsWith("member") //like ‘member%’ 검색
+...
+
+활용)
+where 절의 검색 조건은 ,로 이어나갈 시 and 조건으로 작성됨
+ 
+    List<Member> findMembers = query
+            .select(member)
+            .from(member)
+            .where(
+                    member.username.eq("member1"),
+                    member.age.gt(10)
+            )
+            .fetch();
+
+  3) Result Type
+List<Member> fetch = query
+	.selectFrom(member)
+	.fetch();
+
+Member fetchOne = query
+	.selectFrom(member)
+	.fetchOne();
+
+Member fetchFirst = query
+	.selectFrom(member)
+//	.limit(1).fetchOne();
+	.fetchFirst();
+QueryResults<Member> fetchResults = query
+	.selectFrom(member)
+	.fetchResults();
+
+long total = fetchResults.getTotal(); // total count query 발생
+long limit = fetchResults.getLimit();
+long offset = fetchResults.getOffset();
+List<Member> results = fetchResults.getResults();
+
+long totalCount = query
+                .selectFrom(member)
+                .fetchCount();
 
 
 

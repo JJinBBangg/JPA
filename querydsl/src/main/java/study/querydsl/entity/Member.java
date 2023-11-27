@@ -1,28 +1,36 @@
 package study.querydsl.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
 
 import static lombok.AccessLevel.*;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = PROTECTED)
+@ToString(of = {"id", "username", "age"})
 public class Member {
+
     @Id @GeneratedValue
+    @Column(name = "member_id")
     private Long id;
+    private String username;
+    private int age;
 
-    private String name;
-
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "team_id")
+    private Team team;
 
     @Builder
-    private Member(Long id, String name) {
+    private Member(Long id, String username, int age, Team team) {
         this.id = id;
-        this.name = name;
+        this.username = username;
+        this.age = age;
+        if(team != null) changeTeam(team);
+    }
+
+    public void changeTeam(Team team) {
+        this.team = team;
+        team.getMembers().add(this);
     }
 }
