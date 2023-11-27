@@ -37,7 +37,7 @@ public class MemberController {
     }
 
     @GetMapping("/members")
-    public Page<Member> getMembers(@PageableDefault(page = 0,size =10 ,sort="id",direction = Sort.Direction.DESC) Pageable pageable) {
+    public Page<Member> getMembers(@PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
         return memberRepository.findAll(pageable);
     }
 
@@ -45,11 +45,11 @@ public class MemberController {
     @PostConstruct
     public void init() {
         IntStream.range(1, 100).forEach(i -> {
-                    Member member = Member.builder()
-                            .name("member" + i)
-                            .age(i)
-                            .build();
-                    memberRepository.save(member);
-                });
+            Member member = Member.builder()
+                    .name("member" + i)
+                    .age(i)
+                    .build();
+            memberRepository.save(member);
+        });
     }
 }

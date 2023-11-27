@@ -1,13 +1,9 @@
 package study.datajpa.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import study.datajpa.request.UpdateMember;
 
-import java.util.ArrayList;
 
 @Entity
 @Getter
@@ -16,9 +12,11 @@ import java.util.ArrayList;
         name = "Member.findByName",
         query = "select m from Member m where m.name = :name"
 )
-public class Member extends JpaBaseEntity{
+@ToString(of = {"id", "name", "age"})
+public class Member {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "member_id")
     private Long id;
 
@@ -35,16 +33,16 @@ public class Member extends JpaBaseEntity{
         this.id = id;
         this.name = name;
         this.age = age;
-        if(team !=null) changeTeam(team);
+        if (team != null) changeTeam(team);
     }
 
-    public void updateMember(UpdateMember updateMember){
+    public void updateMember(UpdateMember updateMember) {
         name = updateMember.getName() == null ? name : updateMember.getName();
         age = updateMember.getAge() == null ? age : updateMember.getAge();
-        if(updateMember.getTeam() != null) changeTeam(team);
+        if (updateMember.getTeam() != null) changeTeam(team);
     }
 
-    private void changeTeam(Team team){
+    private void changeTeam(Team team) {
         this.team = team;
         team.getMembers().add(this);
     }

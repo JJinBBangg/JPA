@@ -257,9 +257,38 @@ class MemberRepositoryTest {
     }
 
     @Test
-    @DisplayName("RepositoryCustom")
+    @DisplayName("RepositoryCustom, Projections")
     void test7(){
+        //given
+        Member member = Member.builder().name("member1").age(33).build();
+        Member member2 = Member.builder().name("member2").age(33).build();
+        memberRepository.save(member);
+        memberRepository.save(member2);
+        em.flush();
+        em.clear();
         List<Member> members = memberRepository.findMemberCustom();
+
         System.out.println("members = " + members);
+
+        List<NameOnly> membersAll = memberRepository.findMembersByNameLike("%member%");
+        membersAll.stream().forEach(System.out::println);
+//        List<Member> all = memberRepository.findPAll();
+//        all.stream().forEach(System.out::println);
     }
+    @Test
+    @DisplayName("NativeQuery")
+    void test8() throws Exception{
+        //given
+        Member member = Member.builder().name("member1").age(11).build();
+        Member member2 = Member.builder().name("member2").age(22).build();
+        memberRepository.save(member);
+        memberRepository.save(member2);
+        em.flush();
+        em.clear();
+
+        //when
+        List<String> member1 = memberRepository.findNativeAll("member1");
+        member1.stream().forEach(System.out::println);
+    }
+
 }

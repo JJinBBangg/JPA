@@ -1,9 +1,6 @@
 package jpabook.jpashop.response;
 
-import jpabook.jpashop.entity.Delivery;
-import jpabook.jpashop.entity.Member;
-import jpabook.jpashop.entity.OrderItem;
-import jpabook.jpashop.entity.OrderStatus;
+import jpabook.jpashop.entity.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,6 +19,7 @@ public class OrderResponse {
     private OrderStatus status;
     private List<OrderItemResponse> orderItemResponse;
     private DeliveryResponse deliveryResponse;
+
 
     @Builder
     private OrderResponse(Long id, Member member, LocalDateTime orderDate, OrderStatus status/*, List<OrderItem> orderItems*/, Delivery delivery) {

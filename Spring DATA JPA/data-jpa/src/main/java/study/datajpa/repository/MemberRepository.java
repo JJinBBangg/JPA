@@ -14,7 +14,7 @@ import java.util.List;
 
 public interface MemberRepository extends JpaRepository<Member, Long>, MemberRepositoryCustom {
 
-    // 사용 시 각 Entity 의 필드명과 동일한 변수값을 지정해야함 
+    // 사용 시 각 Entity 의 필드명과 동일한 변수값을 지정해야함
     // username 이라고 지정할 시 member entity 의 필드값이 없다고 오류발생
     // 사용 중 필드명이 수정될 시 어플리케이션 실행 시점에 오류발생ㄷ
     List<Member> findByNameAndAgeGreaterThan(String name, int age);
@@ -26,8 +26,8 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
     // 삭제 : delete...By // return long
     // DISTINCT : find...DistinctBy
     // LIMIT : findFirst(#), findTop(#)
-    
-    @Query(name = "Member.findByName") 
+
+    @Query(name = "Member.findByName")
     // 주석 처리하여도 메서드 명을 기준으로 namedQuery 를 우선으로 찾고
     // 찾는 기준 jpaRepository<T, ID> T 자리의 Member entity 내부의
     // Member.findByName 이름의 namedQuery 검색
@@ -90,4 +90,9 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
     @Query("update Member m set m.age = m.age+1 where m.age >= :age")
     void updateMember(@Param("age") int age);
 
+
+    List<NameOnly> findMembersByNameLike(@Param("name") String name);
+
+    @Query(value = "SELECT m.name FROM MEMBER m WHERE name = ?", nativeQuery = true)
+    List<String> findNativeAll(String name);
 }
