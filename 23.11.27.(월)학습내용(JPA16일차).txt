@@ -1,0 +1,76 @@
+1.학습내용
+
+
+SPRING DATA JPA 
+
+ 1) 도메인 클레스 컨버터
+      @GetMapping("/member/{id}")
+    public String getMember(@PathVariable("id") Long id){
+        Member member = memberRepository.findById(id).orElseThrow(NotFoundMember::new);
+        return member.getName();
+    }
+
+    @GetMapping("/member1/{id}")
+    public MemberResponse getMember1(@PathVariable("id") Member member){
+        return MemberResponse.builder()
+                .name(member.getName())
+                .build();
+    }
+
+   * @PathVariable 의 값의 이름과 Member의 식별자의 필드이름과 같은경우 위처럼 바로 객체를 찾아와서 넣어줌 
+        @Model이나 @ModelAttribute에 값을 자동으로 넣어준는 것과 같은원리로 spring data jpa 에서 지원하는 기능
+
+    실무에서는 위처럼 잘 사용하지 않음 request 용 dto등을 통해서 접근하지 controller에서 직접 Entity 객체에 직접 접근하는것은 올바르지 않음
+    OSIV를 false하는 경우 Controller에서 사용할 수도 없음  사용하더라도 조회용으로만 사용해야한다     
+
+    @GetMapping("/members")
+    public Page<Member> getMembers(Pageable pageable) {
+        return memberRepository.findAll(pageable);
+    }
+
+http://localhost:8080/members?page=0&size=30
+http://localhost:8080/members?page=0&size=30&sort=name,desc,ignorecase   sort=(정렬기준필드명, 정렬(생략가능), 대소문자구분없음(생략가능)) 
+
+request 요청 시 위 처럼 parameter세팅하면 자동으로 pageable 정보를 읽어드림
+
+page
+Page you want to retrieve. 0-indexed and defaults to 0.
+
+size
+Size of the page you want to retrieve. Defaults to 20.
+
+sort
+Properties that should be sorted by in the format property,property(,ASC|DESC)(,IgnoreCase). The default sort direction is case-sensitive ascending. Use multiple sort parameters if you want to switch direction or case sensitivity — for example, ?sort=firstname&sort=lastname,asc&sort=city,ignorecase.
+
+3가지 기능제공
+
+
+   @GetMapping("/members")
+    public Page<Member> getMembers(@PageableDefault(page = 0,size =10 ,sort="id",direction = Sort.Direction.DESC) Pageable pageable) {
+        return memberRepository.findAll(pageable);
+    }
+
+각 Pageable 객에의 기본값을 @PageableDefault 사용하여 기본값을 지정해줄수있음 
+global setting의 경우 
+spring.data.web.default_page_size : 0
+spring.data.web.max_page_size : 30
+spring.data.web.pageable.one-indexed-parameters: ture  //page가 1번부터 시작
+  위처럼 Pageable객체를 파라미터로 설정 시  
+<< 실무 팁>>
+정적쿼리인 경우
+간단한 조건검색에서 쿼리 메소드를  사용하고 
+2~3가지 이상 복잡한 조건을 검색해야하는경우 @Query("JPQL") 사용하는 것이 올바름
+
+페이징 하는 쿼리가 복잡해지는 경우 성능향상을 위해 countQuery를 별도로 작성해줄 수 있음
+left(right) outter join 인 경우 기준이 되는 left 테이블의 값을 기준으로 쿼리문 작성
+
+동적 쿼리는 queryDSL사용하는 것이 올바름
+
+
+
+
+
+
+
+
+
