@@ -1,0 +1,26 @@
+spring:
+  datasource:
+    url: jdbc:h2:tcp://localhost/~/querydsl
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        #        show_sql: true
+        format_sql: true
+        default_batch_fetch_size: 100 #최적화 옵션
+#  data:
+#    web:
+#      pageable:
+#        default-page-size : 10
+#        max-page-size : 30
+        #        one-indexed-parameters: ture
+        # page 가 1번부터 시작 하지만 Page<T> 타입으로 반환시 내부에 반영은 0을 기준으로 반환되어 혼동될 수 있으니
+        # page 에 대한 정보를 별도 pageResponse 로 만들어서 응답하는 것을 추천
+logging.level:
+  org.hibernate.SQL: debug
+#  org.hibernate.type: trace
