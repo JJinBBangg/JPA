@@ -27,11 +27,11 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
     // DISTINCT : find...DistinctBy
     // LIMIT : findFirst(#), findTop(#)
 
-    @Query(name = "Member.findByName")
     // 주석 처리하여도 메서드 명을 기준으로 namedQuery 를 우선으로 찾고
     // 찾는 기준 jpaRepository<T, ID> T 자리의 Member entity 내부의
     // Member.findByName 이름의 namedQuery 검색
     // 이후에 쿼리 메소드로 작동한다.
+    @Query(name = "Member.findByName")
     List<Member> findByName(@Param("name") String name);
 
     @Query("select m from Member m where m.name = :name and m.age > :age")
@@ -93,6 +93,8 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
 
     List<NameOnly> findMembersByNameLike(@Param("name") String name);
 
-    @Query(value = "SELECT m.name FROM MEMBER m WHERE name = ?", nativeQuery = true)
-    List<String> findNativeAll(String name);
+    @Query(value = "SELECT m.name FROM MEMBER m WHERE name = ?",
+            countQuery = "select count(*) from member",
+            nativeQuery = true) // DTO로도 받을 수 있음
+    List<String> findNativeAll(String name, Pageable pageable);
 }

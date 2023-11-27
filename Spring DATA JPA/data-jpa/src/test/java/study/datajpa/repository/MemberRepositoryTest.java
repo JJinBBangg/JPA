@@ -287,7 +287,7 @@ class MemberRepositoryTest {
         em.clear();
 
         //when
-        List<String> member1 = memberRepository.findNativeAll("member1");
+        List<String> member1 = memberRepository.findNativeAll("member1", PageRequest.of(0,10));
         member1.stream().forEach(System.out::println);
     }
 
