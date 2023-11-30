@@ -18,6 +18,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.querydsl.entity.Member;
@@ -185,7 +188,7 @@ public class QuerydslBasicTest {
     void test5() {
         List<Member> members = query
                 .selectFrom(member)
-                .orderBy(member.age.desc(), member.username.asc().nullsLast())
+                .orderBy(member.id.desc(), member.username.asc().nullsLast())
                 .fetch();
 
         members.stream().forEach(System.out::println);
@@ -647,7 +650,8 @@ public class QuerydslBasicTest {
 
         members.stream().forEach(System.out::println);
 
-        List<MemberResponse> findMembers = memberRepository.findMembers();
+        PageRequest pageRequest = PageRequest.of(0, 10);
+        Page<MemberResponse> findMembers = memberRepository.findMembers(pageRequest);
         findMembers.stream().forEach(System.out::println);
     }
 }

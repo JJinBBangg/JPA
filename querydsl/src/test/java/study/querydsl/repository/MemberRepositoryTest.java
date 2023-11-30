@@ -7,6 +7,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.querydsl.entity.Member;
@@ -80,17 +83,19 @@ class MemberRepositoryTest {
     }
 
     @Test
-    @DisplayName("")
+    @DisplayName("data jpa, querydsl 혼합 사용 ")
     void test1() throws Exception {
         //given
         MemberSearchCondition condition = MemberSearchCondition.builder()
-//                .username("member1")
+//                .username("member")
 //                .teamName("teamA")
-                .ageGoe(20)
+                .ageGoe(10)
                 .ageLoe(40)
                 .build();
+
+        PageRequest pageRequest = PageRequest.of(0,10);
         //when
-        List<MemberTeamResponse> findMembers = memberRepository.findMemberWithTeam(condition);
+        Page<MemberTeamResponse> findMembers = memberRepository.findMemberWithTeam(condition, pageRequest);
 
         //then
         findMembers.stream().forEach(System.out::println);

@@ -1,11 +1,18 @@
 package study.querydsl.repository;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.QueryResults;
+import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.util.StringUtils;
 import study.querydsl.entity.Member;
 import study.querydsl.entity.QTeam;
@@ -18,45 +25,30 @@ import static org.springframework.util.StringUtils.*;
 import static study.querydsl.entity.QMember.member;
 import static study.querydsl.entity.QTeam.*;
 
-public class MemberRepositoryImpl implements MemberRepositoryCustom{
+@RequiredArgsConstructor
+public class MemberRepositoryImpl implements MemberRepositoryCustom {
 
     private final EntityManager em;
     private final JPAQueryFactory query;
 
-    public MemberRepositoryImpl(EntityManager em) {
-        this.em = em;
-        this.query = new JPAQueryFactory(em);
+    @Override
+    public Page<MemberResponse> findMembers(Pageable pageable) {
+        QueryResults<MemberResponse> result = query
+                .select(new QMemberResponse(member.username, member.age))
+                .from(member)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(member.id.desc())
+                .fetchResults();
+        List<MemberResponse> members = result.getResults();
+        long total = result.getTotal();
+
+        return new PageImpl<>(members, pageable, total);
     }
 
     @Override
-    public List<MemberResponse> findMembers() {
-        return query
-                .select(new QMemberResponse(member.username,member.age))
-                .from(member)
-                .fetch();
-    }
-
-    public void save(Member member){
-        em.persist(member);
-    }
-
-    public Optional<Member> findById(Long id){
-        return Optional.ofNullable(em.find(Member.class, id));
-    }
-
-    public List<Member> findAll(){
-        return em.createQuery("select m from Member m", Member.class)
-                .getResultList();
-    }
-
-    public List<Member> findByUsername(String username){
-        return em.createQuery("select m from Member m where m.username = :username")
-                .setParameter("username", username)
-                .getResultList();
-    }
-
-    public List<MemberTeamResponse> findMemberWithTeam(MemberSearchCondition condition){
-        return query
+    public Page<MemberTeamResponse> findMemberWithTeam(MemberSearchCondition condition, Pageable pageable) {
+        QueryResults<MemberTeamResponse> getResult = query
                 .select(new QMemberTeamResponse(
                         member.id.as("memberId"),
                         member.username,
@@ -64,32 +56,86 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom{
                         team.id.as("teamId"),
                         team.name.as("teamName")))
                 .from(member)
+                .leftJoin(member.team, team)
+                .where(search(condition)/*, usernameLike(condition.getUsername()*/)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(member.id.desc())
+                .fetchResults();
+
+        List<MemberTeamResponse> contents = getResult.getResults();
+        long totalCount = getResult.getTotal();
+
+        return new PageImpl<>(contents, pageable, totalCount);
+    }
+
+    @Override
+    public Page<MemberTeamResponse> findMemberWithTeamV2(MemberSearchCondition condition, Pageable pageable) {
+        List<MemberTeamResponse> contents = query
+                .select(new QMemberTeamResponse(
+                        member.id.as("memberId"),
+                        member.username,
+                        member.age,
+                        team.id.as("teamId"),
+                        team.name.as("teamName")))
+                .from(member)
+                .leftJoin(member.team, team)
+                .where(search(condition))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(/*member.id.desc()*/)
+                .fetch();
+
+        Long totalCount = query
+                .select(member)
+                .from(member)
                 .join(member.team, team)
                 .where(search(condition))
-                .fetch();
+                .fetchCount();
+        JPAQuery<Member> memberJPAQuery = query
+                .select(member)
+                .from(member)
+                .join(member.team, team)
+                .where(search(condition));
+
+//        return new PageImpl<>(contents, pageable, totalCount);
+        //page 최적화
+        return PageableExecutionUtils.getPage(contents,pageable, memberJPAQuery::fetchCount);
     }
-    private Predicate search(MemberSearchCondition condition){
+
+    // 내부 메서드
+    private Predicate search(MemberSearchCondition condition) {
         BooleanBuilder builder = new BooleanBuilder();
-        if(hasText(condition.getUsername())) builder.and(userNameEq(condition.getUsername()));
-        if(hasText(condition.getTeamName())) builder.and(teamNameEq(condition.getTeamName()));
-        if(condition.getAgeGoe() != null) builder.and(ageGoe(condition.getAgeGoe()));
-        if(condition.getAgeLoe() != null) builder.and(ageLoe(condition.getAgeLoe()));
+        if (hasText(condition.getUsername())) builder.and(userNameEq(condition.getUsername()));
+        if (hasText(condition.getTeamName())) builder.and(teamNameEq(condition.getTeamName()));
+        if (condition.getAgeGoe() != null) builder.and(ageGoe(condition.getAgeGoe()));
+        if (condition.getAgeLoe() != null) builder.and(ageLoe(condition.getAgeLoe()));
+        if (hasText(condition.getUsernameLike())) builder.and(usernameLike(condition.getUsernameLike()));
         return builder;
     }
+
     private BooleanExpression userNameEq(String condition) {
-        if(hasText(condition)) return member.username.eq(condition);
+        if (hasText(condition)) return member.username.eq(condition);
         return null;
     }
+
     private BooleanExpression teamNameEq(String condition) {
-        if(hasText(condition)) return team.name.eq(condition);
+        if (hasText(condition)) return team.name.eq(condition);
         return null;
     }
-    private BooleanExpression ageGoe(Integer condition){
-        if(condition != null) return member.age.goe(condition);
+
+    private BooleanExpression ageGoe(Integer condition) {
+        if (condition != null) return member.age.goe(condition);
         return null;
     }
-    private BooleanExpression ageLoe(Integer condition){
-        if(condition != null) return member.age.loe(condition);
+
+    private BooleanExpression ageLoe(Integer condition) {
+        if (condition != null) return member.age.loe(condition);
+        return null;
+    }
+
+    private BooleanExpression usernameLike(String condition) {
+        if (hasText(condition)) return member.username.like("%" + condition + "%");
         return null;
     }
 }

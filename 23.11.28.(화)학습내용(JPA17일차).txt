@@ -1,13 +1,13 @@
-1.학습내용
+1. 학습내용
 
-<Querydsl 사용법>
+<Querydsl>
 
 @Test
 @DisplayName("JPQL test")
 void test1() {
 Member findMember = em.createQuery("select m from Member m where m.username = :username", Member.class)
-.setParameter("username", "member1")
-.getSingleResult();
+    .setParameter("username", "member1")
+    .getSingleResult();
 
 assertEquals("member1", findMember.getUsername(), "member1을 찾고 이름비교");
 
@@ -20,9 +20,9 @@ void test2() {
 //        QMember qMember = QMember.member;
 
 Member findMember = query
-.select(member)
-.from(member)
-.where(member.username.eq("member1")).fetchOne();
+    .select(member)
+    .from(member)
+    .where(member.username.eq("member1")).fetchOne();
 
 assertEquals("member1", findMember.getUsername(), "member1을 찾고 이름비교");
 }
@@ -40,13 +40,13 @@ void test3() {
 
 // where 절의 검색 조건은 ,로 이어나갈 시 and 조건으로 작성됨
 List<Member> findMembers = query
-.select(member)
-.from(member)
-.where(
-member.username.eq("member1"),
-member.age.gt(10)
-)
-.fetch();
+    .select(member)
+    .from(member)
+    .where(
+            member.username.eq("member1"),
+            member.age.gt(10)
+    )
+    .fetch();
 assertEquals("member1", findMembers.get(0).getUsername());
 }
 
@@ -54,22 +54,22 @@ assertEquals("member1", findMembers.get(0).getUsername());
 @DisplayName("Result Type")
 void test4() {
 List<Member> fetch = query
-.selectFrom(member)
-.fetch();
+    .selectFrom(member)
+    .fetch();
 
 Member fetchOne = query
-.selectFrom(member)
-.where(member.username.eq("member1"))
-.fetchOne();
+    .selectFrom(member)
+    .where(member.username.eq("member1"))
+    .fetchOne();
 
 Member fetchFirst = query
-.selectFrom(member)
+    .selectFrom(member)
 //                .limit(1).fetchOne();
-.fetchFirst();
+    .fetchFirst();
 
 QueryResults<Member> fetchResults = query
-.selectFrom(member)
-.fetchResults();
+    .selectFrom(member)
+    .fetchResults();
 // total count 를 가져와야하기떄문에 쿼리가 2번 실행됨
 
 long total = fetchResults.getTotal();
@@ -78,17 +78,17 @@ long offset = fetchResults.getOffset();
 List<Member> results = fetchResults.getResults();
 
 long totalCount = query
-.selectFrom(member)
-.fetchCount();
+    .selectFrom(member)
+    .fetchCount();
 }
 
 @Test
 @DisplayName("Querydsl Sort")
 void test5() {
 List<Member> members = query
-.selectFrom(member)
-.orderBy(member.age.desc(), member.username.asc().nullsLast())
-.fetch();
+    .selectFrom(member)
+    .orderBy(member.age.desc(), member.username.asc().nullsLast())
+    .fetch();
 
 members.stream().forEach(System.out::println);
 
@@ -98,11 +98,11 @@ members.stream().forEach(System.out::println);
 @DisplayName("Querydsl pageable")
 void test6() {
 List<Member> members = query
-.selectFrom(member)
-.orderBy(member.age.desc())
-.offset(0)
-.limit(2)
-.fetch();
+    .selectFrom(member)
+    .orderBy(member.age.desc())
+    .offset(0)
+    .limit(2)
+    .fetch();
 members.stream().forEach(System.out::println);
 }
 
@@ -110,15 +110,15 @@ members.stream().forEach(System.out::println);
 @DisplayName("Querydsl aggregation")
 void test7() {
 Tuple tuple = query
-.select(
-member.count(),
-member.age.sum(),
-member.age.avg(),
-member.age.max(),
-member.age.min()
-)
-.from(member)
-.fetchOne();
+    .select(
+            member.count(),
+            member.age.sum(),
+            member.age.avg(),
+            member.age.max(),
+            member.age.min()
+    )
+    .from(member)
+    .fetchOne();
 
 System.out.println(tuple);
 // 아래처럼 Array 로 반환됨
@@ -133,12 +133,12 @@ Integer sumAge = tuple.get(member.age.sum());
 void test8() throws Exception {
 //given
 List<Tuple> fetch = query
-.select(team.name, member.age.avg())
-.from(member)
-.join(member.team, team)
-.groupBy(team.name)
-.having(team.name.like("%team%"))
-.fetch();
+    .select(team.name, member.age.avg())
+    .from(member)
+    .join(member.team, team)
+    .groupBy(team.name)
+    .having(team.name.like("%team%"))
+    .fetch();
 //when
 fetch.stream().forEach(System.out::println);
 // [teamA, 16.5]
@@ -161,11 +161,11 @@ void test9() throws Exception {
 
 //when
 List<Member> members = query
-.select(member)
-.from(member)
-.join(member.team, team)
-.where(team.name.eq("teamA"))
-.fetch();
+    .select(member)
+    .from(member)
+    .join(member.team, team)
+    .where(team.name.eq("teamA"))
+    .fetch();
 //then
 assertEquals(2, members.size(), "검색된 회원의 수는 2명이어야 한다.");
 }
@@ -175,24 +175,24 @@ assertEquals(2, members.size(), "검색된 회원의 수는 2명이어야 한다
 void test10() throws Exception {
 //given
 Member member1 = Member.builder()
-.username("teamA")
-.build();
+    .username("teamA")
+    .build();
 Member member2 = Member.builder()
-.username("teamB")
-.build();
+    .username("teamB")
+    .build();
 em.persist(member1);
 em.persist(member2);
 
 //when
 List<Member> members = query
-.select(member)
-.from(member, team)
-.where(member.username.eq(team.name))
-.fetch();
+    .select(member)
+    .from(member, team)
+    .where(member.username.eq(team.name))
+    .fetch();
 //then
 Assertions.assertThat(members)
-.extracting("username")
-.containsExactly("teamA", "teamB");
+    .extracting("username")
+    .containsExactly("teamA", "teamB");
 }
 
 @Test
@@ -202,11 +202,11 @@ void test11() throws Exception {
 
 //when
 query
-.select(member, team)
-.from(member)
-.leftJoin(member.team, team)
-.on(team.name.eq("teamA"))
-.fetch();
+    .select(member, team)
+    .from(member)
+    .leftJoin(member.team, team)
+    .on(team.name.eq("teamA"))
+    .fetch();
 //then
 }
 
@@ -221,10 +221,10 @@ em.clear();
 
 // fetchType.LAZY
 Member findMember = query
-.select(member)
-.from(member)
-.where(member.username.eq("member1"))
-.fetchOne();
+    .select(member)
+    .from(member)
+    .where(member.username.eq("member1"))
+    .fetchOne();
 boolean loaded = emf.getPersistenceUnitUtil().isLoaded(findMember.getTeam());
 
 
@@ -241,11 +241,11 @@ em.clear();
 
 //when
 Member findMember = query
-.select(member)
-.from(member)
-.join(member.team, team).fetchJoin()
-.where(member.username.eq("member1"))
-.fetchOne();
+    .select(member)
+    .from(member)
+    .join(member.team, team).fetchJoin()
+    .where(member.username.eq("member1"))
+    .fetchOne();
 
 boolean loaded = emf.getPersistenceUnitUtil().isLoaded(findMember.getTeam());
 //then
@@ -259,12 +259,12 @@ void test14() throws Exception {
 QMember qMember = new QMember("subMember");
 //when
 Member findMember = query
-.selectFrom(member)
-.where(member.age.eq(
-select(qMember.age.max())
-.from(qMember)
-))
-.fetchOne();
+    .selectFrom(member)
+    .where(member.age.eq(
+            select(qMember.age.max())
+                    .from(qMember)
+    ))
+    .fetchOne();
 
 
 //then
@@ -279,11 +279,11 @@ QMember qMember = new QMember("subMember");
 
 //when
 query
-.select(member.username,
-select(qMember.age.max())
-.from(qMember))
-.from(member)
-.fetch();
+    .select(member.username,
+            select(qMember.age.max())
+                    .from(qMember))
+    .from(member)
+    .fetch();
 
 //then
 }
@@ -295,12 +295,12 @@ void test16() throws Exception {
 
 //when
 List<String> fetch = query
-.select(member.age
-.when(10).then("10살")
-.when(20).then("20살")
-.otherwise("기타"))
-.from(member)
-.fetch();
+    .select(member.age
+            .when(10).then("10살")
+            .when(20).then("20살")
+            .otherwise("기타"))
+    .from(member)
+    .fetch();
 
 //then
 }
@@ -312,12 +312,12 @@ void test17() throws Exception {
 
 //when
 List<String> fetch = query
-.select(new CaseBuilder()
-.when(member.age.between(1, 19)).then("미성년자")
-.when(member.age.between(20, 100)).then("성인")
-.otherwise("기타"))
-.from(member)
-.fetch();
+    .select(new CaseBuilder()
+            .when(member.age.between(1, 19)).then("미성년자")
+            .when(member.age.between(20, 100)).then("성인")
+            .otherwise("기타"))
+    .from(member)
+    .fetch();
 
 //then
 }
@@ -331,9 +331,9 @@ void test18() throws Exception {
 // 아래처럼 stringValue 를 자주사용하게 되는데
 // Enum 의 경우에도 값을 비교하거나 더할 때 stringValue 사용
 List<String> fetch = query
-.select(member.username.concat("_").concat(member.age.stringValue()))
-.from(member)
-.fetch();
+    .select(member.username.concat("_").concat(member.age.stringValue()))
+    .from(member)
+    .fetch();
 
 //then
 }
@@ -345,9 +345,9 @@ void test19() throws Exception {
 
 //when
 List<String> fetch = query
-.select(member.username)
-.from(member)
-.fetch();
+    .select(member.username)
+    .from(member)
+    .fetch();
 
 //then
 }
@@ -359,9 +359,9 @@ void test20() throws Exception {
 
 //when
 List<Tuple> fetch = query
-.select(member.username, member.age)
-.from(member)
-.fetch();
+    .select(member.username, member.age)
+    .from(member)
+    .fetch();
 
 //then
 }
@@ -374,38 +374,38 @@ void test21() throws Exception {
 //when
 //JPQL
 List<MemberResponse> selectMFromMemberM = em.createQuery(
-"select new study.querydsl.response.MemberResponse( " +
-"m.username," +
-"m.age) " +
-"from Member m", MemberResponse.class)
-.getResultList();
+            "select new study.querydsl.response.MemberResponse( " +
+                    "m.username," +
+                    "m.age) " +
+                    "from Member m", MemberResponse.class)
+    .getResultList();
 
 // Querydsl DTO
 // 프로퍼티 접근 ->Setter + 기본생성자가 public 이어야함
 List<MemberResponse> fetch1 = query
-.select(Projections.bean(MemberResponse.class,
-member.username,
-member.age))
-.from(member)
-.fetch();
+    .select(Projections.bean(MemberResponse.class,
+            member.username,
+            member.age))
+    .from(member)
+    .fetch();
 fetch1.stream().forEach(System.out::println);
 
 // 필드 직접 접근
 List<MemberResponse> fetch2 = query
-.select(Projections.fields(MemberResponse.class,
-member.username,
-member.age))
-.from(member)
-.fetch();
+    .select(Projections.fields(MemberResponse.class,
+            member.username,
+            member.age))
+    .from(member)
+    .fetch();
 fetch2.stream().forEach(System.out::println);
 
 // 생성자 사용 -> constructor 가 public 이어야함
 List<MemberResponse> fetch3 = query
-.select(Projections.constructor(MemberResponse.class,
-member.username,
-member.age))
-.from(member)
-.fetch();
+    .select(Projections.constructor(MemberResponse.class,
+            member.username,
+            member.age))
+    .from(member)
+    .fetch();
 fetch3.stream().forEach(System.out::println);
 //then
 }
@@ -418,25 +418,25 @@ QMember memberSub = new QMember("memberSub");
 //when
 // 필드 직접 접근
 List<UserResponse> fetch = query
-.select(Projections.fields(UserResponse.class,
-member.username.as("name"), // 필드명을 맞춰서 하지않으면 null 로 주입됨
-//expressionUtils 사용하여 subQuery 의 alias 를 age 로 맞춰서 주입
-ExpressionUtils.as(
-select(memberSub.age.max())
-.from(memberSub), "age")
-))
-.from(member)
-.fetch();
+    .select(Projections.fields(UserResponse.class,
+            member.username.as("name"), // 필드명을 맞춰서 하지않으면 null 로 주입됨
+            //expressionUtils 사용하여 subQuery 의 alias 를 age 로 맞춰서 주입
+            ExpressionUtils.as(
+                    select(memberSub.age.max())
+                            .from(memberSub), "age")
+    ))
+    .from(member)
+    .fetch();
 fetch.stream().forEach(System.out::println);
 
 // 생성자 접근 - 필드명이 달라도 생성자의 파라미터 순서에 맞춰 주입(Type 이 맞아야함)
 List<UserResponse> fetch1 = query
-.select(Projections.constructor(UserResponse.class,
-member.username,
-member.age
-))
-.from(member)
-.fetch();
+    .select(Projections.constructor(UserResponse.class,
+            member.username,
+            member.age
+    ))
+    .from(member)
+    .fetch();
 fetch1.stream().forEach(System.out::println);
 //then
 }
@@ -448,9 +448,9 @@ void test23() throws Exception {
 
 //when
 List<MemberResponse> fetch = query
-.select(new QMemberResponse(member.username, member.age))
-.from(member)
-.fetch();
+    .select(new QMemberResponse(member.username, member.age))
+    .from(member)
+    .fetch();
 
 //then
 fetch.stream().forEach(System.out::println);
@@ -481,10 +481,10 @@ if (ageParam != null) builder.and(member.age.eq(ageParam));
 if (usernameParam != null) builder.and(member.username.eq(usernameParam));
 
 return query
-.select(member)
-.from(member)
-.where(builder)
-.fetch();
+    .select(member)
+    .from(member)
+    .where(builder)
+    .fetch();
 
 }
 
@@ -507,10 +507,10 @@ assertEquals(1, findMembers1.size(), "검색된 회원의 수가 1개");
 
 private List<Member> searchMember2(String usernameParam, Integer ageParam) {
 return query
-.select(member)
-.from(member)
-.where(usernameEq(usernameParam), ageEq(ageParam))
-.fetch();
+    .select(member)
+    .from(member)
+    .where(usernameEq(usernameParam), ageEq(ageParam))
+    .fetch();
 
 }
 
@@ -532,18 +532,18 @@ void test26() throws Exception {
 
 //when
 long executed = query
-.update(member)
-.set(member.age, member.age.add(1))
-.set(member.username, "비회원")
-.where(member.age.lt(25))
-.execute();
+    .update(member)
+    .set(member.age, member.age.add(1))
+    .set(member.username, "비회원")
+    .where(member.age.lt(25))
+    .execute();
 
 em.clear();
 //then
 List<Member> members = query
-.select(member)
-.from(member)
-.fetch();
+    .select(member)
+    .from(member)
+    .fetch();
 
 members.stream().forEach(System.out::println);
 
