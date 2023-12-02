@@ -252,7 +252,9 @@ class MemberRepositoryTest {
         Member findMember = memberRepository.findById(member.getId()).orElseThrow(NotFoundMember::new);
         UpdateMember updateMember = UpdateMember.builder().name("memberA").build();
         findMember.updateMember(updateMember);
-        em.flush();// 변경감지(Dirty Checking)
+
+        em.flush();// 변경감지(Dirty Checking )
+        em.clear();
 
     }
 
