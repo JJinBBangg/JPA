@@ -267,7 +267,6 @@ class MemberRepositoryTest {
         memberRepository.save(member);
         memberRepository.save(member2);
         em.flush();
-        em.clear();
         List<Member> members = memberRepository.findMemberCustom();
 
         System.out.println("members = " + members);
