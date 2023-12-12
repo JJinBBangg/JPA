@@ -96,6 +96,5 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
     @Query(value = "SELECT m.name FROM MEMBER m WHERE name = ?",
             countQuery = "select count(*) from member",
             nativeQuery = true) // DTO로도 받을 수 있음
-    //dto로 받을 때
     List<String> findNativeAll(String name, Pageable pageable);
 }
