@@ -5,6 +5,7 @@ import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPQLQuery;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.data.support.PageableExecutionUtils;
@@ -42,6 +43,10 @@ public class MemberTestRepository extends Querydsl4RepositorySupport {
         JPQLQuery<Member> memberJPQLQuery = getQuerydsl().applyPagination(pageable, query);
         List<Member> content = memberJPQLQuery.fetch();
 
+        Member member1 = Member.builder()
+                .age(0)
+                .username("")
+                .build();
         return PageableExecutionUtils.getPage(content, pageable, query::fetchCount);
     }
     public Page<Member> memberPageApply(MemberSearchCondition condition, Pageable pageable){

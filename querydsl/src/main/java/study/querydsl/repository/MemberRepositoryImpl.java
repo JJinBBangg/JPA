@@ -92,6 +92,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                 .join(member.team, team)
                 .where(search(condition))
                 .fetchCount();
+
         JPAQuery<Member> memberJPAQuery = query
                 .select(member)
                 .from(member)
@@ -100,7 +101,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
 
 //        return new PageImpl<>(contents, pageable, totalCount);
         //page 최적화
-        return PageableExecutionUtils.getPage(contents,pageable, memberJPAQuery::fetchCount);
+        return PageableExecutionUtils.getPage(contents, pageable, memberJPAQuery::fetchCount);
     }
 
     // 내부 메서드
@@ -115,28 +116,23 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     }
 
     private BooleanExpression userNameEq(String condition) {
-        if (hasText(condition)) return member.username.eq(condition);
-        return null;
+        return (hasText(condition)) ? member.username.eq(condition) : null;
     }
 
     private BooleanExpression teamNameEq(String condition) {
-        if (hasText(condition)) return team.name.eq(condition);
-        return null;
+        return (hasText(condition)) ? team.name.eq(condition) : null;
     }
 
     private BooleanExpression ageGoe(Integer condition) {
-        if (condition != null) return member.age.goe(condition);
-        return null;
+        return (condition != null) ? member.age.goe(condition) : null;
     }
 
     private BooleanExpression ageLoe(Integer condition) {
-        if (condition != null) return member.age.loe(condition);
-        return null;
+      return (condition != null) ? member.age.loe(condition) : null;
     }
 
     private BooleanExpression usernameLike(String condition) {
-        if (hasText(condition)) return member.username.like("%" + condition + "%");
-        return null;
+        return (hasText(condition)) ? member.username.like("%" + condition + "%") : null;
     }
 }
 
