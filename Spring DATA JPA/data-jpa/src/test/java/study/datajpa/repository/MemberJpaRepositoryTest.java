@@ -43,9 +43,28 @@ class MemberJpaRepositoryTest {
         Member findMember = em.find(Member.class, savedMember.getId());
 
         //then
+        org.junit.jupiter.api.Assertions.assertEquals("", findMember.getName(), "검색된 회원의 이름은 빈값이어야한다");
         assertThat(findMember.getName()).isEqualTo(member.getName());
-        org.junit.jupiter.api.Assertions.assertEquals(findMember.getName(), member.getName());
+        org.junit.jupiter.api.Assertions.assertEquals(findMember.getName(), member.getName(),"검색된 회원의 이름은 memberA 이어야한다");
 
+    }
+    @Test
+    @DisplayName("회원 검색")
+    void test13() throws Exception {
+        //given
+        Member savedMember= memberRepository.save(Member.builder()
+                .name("kookjin")
+                .age(33)
+                .build());
+        //when
+        Member findMember = em.createQuery("select m from Member m where m.name = :name", Member.class)
+                .setParameter("name", "kookjin")
+                .getSingleResult();
+        List<Member> findMembers = memberRepository.findByName("kookjin");
+
+        //then
+        assertThat(findMembers.get(0)).isEqualTo(savedMember).withFailMessage("검색된 멤버는 저장된 멤버와 같아야한다.");
+        org.junit.jupiter.api.Assertions.assertEquals(savedMember, findMember, "저장된 멤버와 검색된 회원은 같아야한다");
     }
 
     @Test

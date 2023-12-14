@@ -37,7 +37,7 @@ public class OrderQueryRepository {
     }
 
     private List<OrderItemResponse> getOrderItems(List<Long> orderIdList) {
-        return em.createQuery("select new jpabook.jpashop.response.OrderItemResponse( " +
+        return em.createQuery("select new jpabook.jpashop.response.OrderItemResponse ( " +
                         " oi.id, " +
                         " oi.order.id, " +
                         " oi.orderPrice, " +

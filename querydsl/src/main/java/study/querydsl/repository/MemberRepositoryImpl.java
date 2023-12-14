@@ -56,7 +56,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                         team.id.as("teamId"),
                         team.name.as("teamName")))
                 .from(member)
-                .leftJoin(member.team, team)
+                .join(member.team, team)
                 .where(search(condition)/*, usernameLike(condition.getUsername()*/)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())

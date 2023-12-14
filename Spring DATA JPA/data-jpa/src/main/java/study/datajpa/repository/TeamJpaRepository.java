@@ -22,12 +22,13 @@ public class TeamJpaRepository {
         return Optional.ofNullable(em.find(Team.class, id));
     }
     public List<Team> findAll(){
-        return em.createQuery("select t from Team t", Team.class).getResultList();
+        return em.createQuery("select t from Team t", Team.class)
+                .getResultList();
     }
     public void delete(Team team){
         em.remove(team);
     }
-    public long count(){
+    public Long count(){
         return em.createQuery("select count(t) from Team t", Long.class).getSingleResult();
     }
 

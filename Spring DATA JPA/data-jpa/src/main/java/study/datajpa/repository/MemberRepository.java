@@ -58,17 +58,17 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
 
     // 쿼리가 복잡해지면 카운트 쿼리도 복잡해짐
     @Query(value = "select m from Member m left join m.team t where m.age = :age",
-    //카운트 쿼리 분리(성능 향상)
+    // 카운트 쿼리 분리(성능 향상)
             countQuery = "select count(m) from Member m where m.age =:age")
     Page<Member> findByPage3(@Param("age") int age, Pageable pageable);
 
-    //수정쿼리에서는 Modifying 붙여줘야함
+    // 수정쿼리에서는 Modifying 붙여줘야함
     // em.executeQuery()
     // 벌크 연산을 하게되면 db 에만 반영되고 영속성 컨텍스트에는 반영되지않음
     // 그래서 clear 를 자동으로 하게만들어서 이후 조회하는 정보는 모두 db 에서 가지고 오게 만듦
     @Modifying(clearAutomatically = true)
     @Query("update Member m set m.age = m.age+1 where m.age >= :age")
-    int bulkAgePlus(@Param("age")int age);
+    int bulkAgePlus(@Param("age") int age);
 
     @Query("select m from Member m "/*" +
             "join fetch m.team t"*/)
@@ -89,7 +89,6 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
     @Modifying(clearAutomatically = true)
     @Query("update Member m set m.age = m.age+1 where m.age >= :age")
     void updateMember(@Param("age") int age);
-
 
     List<NameOnly> findMembersByNameLike(@Param("name") String name);
 

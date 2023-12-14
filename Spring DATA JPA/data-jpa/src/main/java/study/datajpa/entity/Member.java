@@ -13,6 +13,7 @@ import study.datajpa.request.UpdateMember;
         query = "select m from Member m where m.name = :name"
 )
 @ToString(of = {"id", "name", "age"})
+@TableGenerator(name = "member", allocationSize = 100)
 public class Member {
 
     @Id
